@@ -1,0 +1,20 @@
+// ────────────────────────────────────────────────
+// Company (belongs to employer)
+model Company {
+    id                 String             @id @default(uuid())
+    name               String
+    slug               String             @unique
+    description        String?
+    website            String?
+    logoUrl            String?
+    address            String?
+    verificationStatus VerificationStatus @default(PENDING)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    employerProfiles EmployerProfile[]
+    jobs             Job[]
+
+    @@map("companies")
+}

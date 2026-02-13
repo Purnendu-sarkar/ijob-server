@@ -1,0 +1,125 @@
+// ────────────────────────────────────────────────
+// Core shared user (authentication + role)
+model User {
+    id           String     @id @default(uuid())
+    email        String     @unique
+    phone        String?    @unique
+    passwordHash String
+    role         UserRole
+    status       UserStatus @default(ACTIVE)
+
+    // Very minimal shared profile fields (optional)
+    fullName        String?
+    profilePhotoUrl String?
+
+    lastLoginAt DateTime?
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+
+    // Relations — only one of these should be non-null depending on role
+    jobSeekerProfile JobSeekerProfile?
+    employerProfile  EmployerProfile?
+    moderatorProfile ModeratorProfile?
+    adminProfile     AdminProfile?
+
+    // ── relations ─────────────────────────────────────
+    //applications Application[]
+    //bookmarks    Bookmark[]
+    //alerts       Alert[]
+    //auditLogs    AuditLog[]
+
+    // Optional: refresh tokens, reports made, etc.
+    @@map("users")
+}
+
+// ────────────────────────────────────────────────
+// Job Seeker specific profile
+model JobSeekerProfile {
+    id String @id @default(uuid())
+
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    fullName          String
+    dateOfBirth       DateTime?
+    gender            Gender
+    currentLocationId String?
+    expectedSalaryMin Float?
+    expectedSalaryMax Float?
+    experienceYears   Int?
+    about             String?
+
+    // Preferences
+    preferredJobTypes  JobType[]
+    preferredLocations String[]
+
+    profileCompletion Int?     @default(0)
+    createdAt         DateTime @default(now())
+    updatedAt         DateTime @updatedAt
+
+    // ── relations ─────────────────────────────────────
+    //resumes      Resume[]
+    //seekerSkills SeekerSkill[]
+    //applications Application[] @relation("Applicant")
+    //bookmarks    Bookmark[]
+    //alerts       Alert[]
+
+    @@map("job_seeker_profiles")
+}
+
+// ────────────────────────────────────────────────
+// Employer specific profile
+model EmployerProfile {
+    id String @id @default(uuid())
+
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    companyId String
+    company   Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+    designation String?
+    contactName String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    @@map("employer_profiles")
+}
+
+// ────────────────────────────────────────────────
+// Moderator lightweight profile
+model ModeratorProfile {
+    id String @id @default(uuid())
+
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    // Optional moderator-specific settings
+    bio             String?
+    assignedRegions String[] // e.g. divisions they moderate
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("moderator_profiles")
+}
+
+// ────────────────────────────────────────────────
+// Admin lightweight profile
+model AdminProfile {
+    id String @id @default(uuid())
+
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    // Optional admin-specific fields
+    permissions Json? // future-proofing
+    department  String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("admin_profiles")
+}
+
+// ... rest of your schema (Job, Application, Resume, Skill, Location, Bookmark, Alert, AuditLog, etc.)

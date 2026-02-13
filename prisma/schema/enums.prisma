@@ -1,0 +1,57 @@
+enum UserRole {
+    JOB_SEEKER
+    EMPLOYER
+    MODERATOR
+    ADMIN
+}
+
+enum UserStatus {
+    ACTIVE
+    SUSPENDED
+    DELETED
+}
+
+enum VerificationStatus {
+    PENDING
+    VERIFIED
+    REJECTED
+}
+
+enum JobStatus {
+    DRAFT
+    PENDING_REVIEW
+    PUBLISHED
+    PAUSED
+    CLOSED
+    FLAGGED
+}
+
+enum ApplicationStatus {
+    SUBMITTED
+    VIEWED
+    SHORTLISTED
+    INTERVIEW
+    OFFERED
+    HIRED
+    REJECTED
+    WITHDRAWN
+}
+
+enum Gender {
+    MALE
+    FEMALE
+    OTHER
+}
+
+enum JobType {
+    FULL_TIME
+    PART_TIME
+    CONTRACT
+    INTERNSHIP
+    FREELANCE
+    REMOTE
+    GOVT
+    NGO
+    PRIVATE
+    HYBRID
+}

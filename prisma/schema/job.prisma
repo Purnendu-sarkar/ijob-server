@@ -1,0 +1,31 @@
+model Job {
+    id        String  @id @default(uuid())
+    companyId String
+    company   Company @relation(fields: [companyId], references: [id])
+
+    title               String
+    slug                String
+    description         String
+    employmentType      String // or enum
+    workplaceType       String // or enum
+    experienceMin       Int?
+    experienceMax       Int?
+    salaryMin           Float?
+    salaryMax           Float?
+    currency            String    @default("BDT")
+    vacancies           Int       @default(1)
+    applicationDeadline DateTime?
+
+    status JobStatus @default(DRAFT)
+
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    publishedAt DateTime?
+
+    //applications Application[]
+    //bookmarks    Bookmark[]
+
+    // skills, locations, etc.
+
+    @@map("jobs")
+}

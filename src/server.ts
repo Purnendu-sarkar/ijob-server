@@ -2,9 +2,14 @@
 import { Server } from 'http';
 import app from './app';
 import config from './config';
+import seedSuperAdmin from './helpers/seedSuperAdmin';
 
 
 async function bootstrap() {
+    // Seed super admin
+    await seedSuperAdmin();
+
+
     // This variable will hold our server instance
     let server: Server;
 

@@ -21,6 +21,11 @@ const config = {
     salt_rounds: Number(process.env.SALT_ROUNDS),
     super_admin_email: process.env.SUPER_ADMIN_EMAIL as string,
     super_admin_password: process.env.SUPER_ADMIN_PASSWORD,
+
+    jwt: {
+        jwt_secret: process.env.JWT_SECRET as string,
+        expires_in: process.env.JWT_EXPIRES_IN || "7d",
+    },
 };
 
 export default config;

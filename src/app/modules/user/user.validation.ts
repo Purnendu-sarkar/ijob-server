@@ -64,8 +64,25 @@ export const createJobSeekerValidationSchema = z.object({
   ),
 });
 
+// ── Employer ──────────────────────────────────────────
+export const createEmployerValidationSchema = z.object({
+  body: z.object({
+    email: emailSchema,
+    phone: phoneSchema,
+    password: passwordSchema,
+    fullName: fullNameSchema,
+
+    // Company fields (required for first-time employer)
+    companyName: z.string().min(2).max(150),
+    companyWebsite: z.string().url().optional().or(z.literal("")),
+    companyDescription: z.string().max(2000).optional(),
+    designation: z.string().max(100).optional(),
+  }),
+});
+
 // Export for controller / middleware
 export const userValidation = {
   createJobSeeker: createJobSeekerValidationSchema,
+  createEmployer: createEmployerValidationSchema,
 };
 

@@ -33,6 +33,30 @@ const createJobSeeker = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const createEmployer = catchAsync(async (req: Request, res: Response) => {
+  let logoUrl = null;
+
+  if (req.file) {
+    const uploaded = await fileUploader.uploadToCloudinary(req.file);
+    logoUrl = uploaded?.secure_url;
+  }
+
+  const payload = {
+    ...req.body,
+    logoUrl: logoUrl || req.body.logoUrl,
+  };
+
+  const result = await userService.createEmployer(payload);
+
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: "Employer & Company account created successfully (pending verification)",
+    data: result,
+  });
+});
+
 export const userController = {
   createJobSeeker,
+  createEmployer,
 };

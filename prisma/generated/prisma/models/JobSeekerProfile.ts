@@ -9,8 +9,8 @@
  * 🟢 You can import this file directly.
  */
 import type * as runtime from "@prisma/client/runtime/client"
-import type * as $Enums from "../enums"
-import type * as Prisma from "../internal/prismaNamespace"
+import type * as $Enums from "../enums.js"
+import type * as Prisma from "../internal/prismaNamespace.js"
 
 /**
  * Model JobSeekerProfile
@@ -246,9 +246,9 @@ export type JobSeekerProfileGroupByArgs<ExtArgs extends runtime.Types.Extensions
 export type JobSeekerProfileGroupByOutputType = {
   id: string
   userId: string
-  fullName: string
+  fullName: string | null
   dateOfBirth: Date | null
-  gender: $Enums.Gender
+  gender: $Enums.Gender | null
   currentLocationId: string | null
   expectedSalaryMin: number | null
   expectedSalaryMax: number | null
@@ -287,12 +287,12 @@ export type JobSeekerProfileWhereInput = {
   NOT?: Prisma.JobSeekerProfileWhereInput | Prisma.JobSeekerProfileWhereInput[]
   id?: Prisma.StringFilter<"JobSeekerProfile"> | string
   userId?: Prisma.StringFilter<"JobSeekerProfile"> | string
-  fullName?: Prisma.StringFilter<"JobSeekerProfile"> | string
+  fullName?: Prisma.StringNullableFilter<"JobSeekerProfile"> | string | null
   dateOfBirth?: Prisma.DateTimeNullableFilter<"JobSeekerProfile"> | Date | string | null
-  gender?: Prisma.EnumGenderFilter<"JobSeekerProfile"> | $Enums.Gender
+  gender?: Prisma.EnumGenderNullableFilter<"JobSeekerProfile"> | $Enums.Gender | null
   currentLocationId?: Prisma.StringNullableFilter<"JobSeekerProfile"> | string | null
-  expectedSalaryMin?: Prisma.FloatNullableFilter<"JobSeekerProfile"> | number | null
-  expectedSalaryMax?: Prisma.FloatNullableFilter<"JobSeekerProfile"> | number | null
+  expectedSalaryMin?: Prisma.IntNullableFilter<"JobSeekerProfile"> | number | null
+  expectedSalaryMax?: Prisma.IntNullableFilter<"JobSeekerProfile"> | number | null
   experienceYears?: Prisma.IntNullableFilter<"JobSeekerProfile"> | number | null
   about?: Prisma.StringNullableFilter<"JobSeekerProfile"> | string | null
   preferredJobTypes?: Prisma.EnumJobTypeNullableListFilter<"JobSeekerProfile">
@@ -306,9 +306,9 @@ export type JobSeekerProfileWhereInput = {
 export type JobSeekerProfileOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  fullName?: Prisma.SortOrder
+  fullName?: Prisma.SortOrderInput | Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
-  gender?: Prisma.SortOrder
+  gender?: Prisma.SortOrderInput | Prisma.SortOrder
   currentLocationId?: Prisma.SortOrderInput | Prisma.SortOrder
   expectedSalaryMin?: Prisma.SortOrderInput | Prisma.SortOrder
   expectedSalaryMax?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -328,12 +328,12 @@ export type JobSeekerProfileWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.JobSeekerProfileWhereInput | Prisma.JobSeekerProfileWhereInput[]
   OR?: Prisma.JobSeekerProfileWhereInput[]
   NOT?: Prisma.JobSeekerProfileWhereInput | Prisma.JobSeekerProfileWhereInput[]
-  fullName?: Prisma.StringFilter<"JobSeekerProfile"> | string
+  fullName?: Prisma.StringNullableFilter<"JobSeekerProfile"> | string | null
   dateOfBirth?: Prisma.DateTimeNullableFilter<"JobSeekerProfile"> | Date | string | null
-  gender?: Prisma.EnumGenderFilter<"JobSeekerProfile"> | $Enums.Gender
+  gender?: Prisma.EnumGenderNullableFilter<"JobSeekerProfile"> | $Enums.Gender | null
   currentLocationId?: Prisma.StringNullableFilter<"JobSeekerProfile"> | string | null
-  expectedSalaryMin?: Prisma.FloatNullableFilter<"JobSeekerProfile"> | number | null
-  expectedSalaryMax?: Prisma.FloatNullableFilter<"JobSeekerProfile"> | number | null
+  expectedSalaryMin?: Prisma.IntNullableFilter<"JobSeekerProfile"> | number | null
+  expectedSalaryMax?: Prisma.IntNullableFilter<"JobSeekerProfile"> | number | null
   experienceYears?: Prisma.IntNullableFilter<"JobSeekerProfile"> | number | null
   about?: Prisma.StringNullableFilter<"JobSeekerProfile"> | string | null
   preferredJobTypes?: Prisma.EnumJobTypeNullableListFilter<"JobSeekerProfile">
@@ -347,9 +347,9 @@ export type JobSeekerProfileWhereUniqueInput = Prisma.AtLeast<{
 export type JobSeekerProfileOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  fullName?: Prisma.SortOrder
+  fullName?: Prisma.SortOrderInput | Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
-  gender?: Prisma.SortOrder
+  gender?: Prisma.SortOrderInput | Prisma.SortOrder
   currentLocationId?: Prisma.SortOrderInput | Prisma.SortOrder
   expectedSalaryMin?: Prisma.SortOrderInput | Prisma.SortOrder
   expectedSalaryMax?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -373,12 +373,12 @@ export type JobSeekerProfileScalarWhereWithAggregatesInput = {
   NOT?: Prisma.JobSeekerProfileScalarWhereWithAggregatesInput | Prisma.JobSeekerProfileScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"JobSeekerProfile"> | string
   userId?: Prisma.StringWithAggregatesFilter<"JobSeekerProfile"> | string
-  fullName?: Prisma.StringWithAggregatesFilter<"JobSeekerProfile"> | string
+  fullName?: Prisma.StringNullableWithAggregatesFilter<"JobSeekerProfile"> | string | null
   dateOfBirth?: Prisma.DateTimeNullableWithAggregatesFilter<"JobSeekerProfile"> | Date | string | null
-  gender?: Prisma.EnumGenderWithAggregatesFilter<"JobSeekerProfile"> | $Enums.Gender
+  gender?: Prisma.EnumGenderNullableWithAggregatesFilter<"JobSeekerProfile"> | $Enums.Gender | null
   currentLocationId?: Prisma.StringNullableWithAggregatesFilter<"JobSeekerProfile"> | string | null
-  expectedSalaryMin?: Prisma.FloatNullableWithAggregatesFilter<"JobSeekerProfile"> | number | null
-  expectedSalaryMax?: Prisma.FloatNullableWithAggregatesFilter<"JobSeekerProfile"> | number | null
+  expectedSalaryMin?: Prisma.IntNullableWithAggregatesFilter<"JobSeekerProfile"> | number | null
+  expectedSalaryMax?: Prisma.IntNullableWithAggregatesFilter<"JobSeekerProfile"> | number | null
   experienceYears?: Prisma.IntNullableWithAggregatesFilter<"JobSeekerProfile"> | number | null
   about?: Prisma.StringNullableWithAggregatesFilter<"JobSeekerProfile"> | string | null
   preferredJobTypes?: Prisma.EnumJobTypeNullableListFilter<"JobSeekerProfile">
@@ -390,9 +390,9 @@ export type JobSeekerProfileScalarWhereWithAggregatesInput = {
 
 export type JobSeekerProfileCreateInput = {
   id?: string
-  fullName: string
+  fullName?: string | null
   dateOfBirth?: Date | string | null
-  gender: $Enums.Gender
+  gender?: $Enums.Gender | null
   currentLocationId?: string | null
   expectedSalaryMin?: number | null
   expectedSalaryMax?: number | null
@@ -409,9 +409,9 @@ export type JobSeekerProfileCreateInput = {
 export type JobSeekerProfileUncheckedCreateInput = {
   id?: string
   userId: string
-  fullName: string
+  fullName?: string | null
   dateOfBirth?: Date | string | null
-  gender: $Enums.Gender
+  gender?: $Enums.Gender | null
   currentLocationId?: string | null
   expectedSalaryMin?: number | null
   expectedSalaryMax?: number | null
@@ -426,12 +426,12 @@ export type JobSeekerProfileUncheckedCreateInput = {
 
 export type JobSeekerProfileUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   currentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expectedSalaryMin?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedSalaryMax?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedSalaryMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedSalaryMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
@@ -445,12 +445,12 @@ export type JobSeekerProfileUpdateInput = {
 export type JobSeekerProfileUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   currentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expectedSalaryMin?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedSalaryMax?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedSalaryMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedSalaryMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
@@ -463,9 +463,9 @@ export type JobSeekerProfileUncheckedUpdateInput = {
 export type JobSeekerProfileCreateManyInput = {
   id?: string
   userId: string
-  fullName: string
+  fullName?: string | null
   dateOfBirth?: Date | string | null
-  gender: $Enums.Gender
+  gender?: $Enums.Gender | null
   currentLocationId?: string | null
   expectedSalaryMin?: number | null
   expectedSalaryMax?: number | null
@@ -480,12 +480,12 @@ export type JobSeekerProfileCreateManyInput = {
 
 export type JobSeekerProfileUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   currentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expectedSalaryMin?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedSalaryMax?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedSalaryMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedSalaryMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
@@ -498,12 +498,12 @@ export type JobSeekerProfileUpdateManyMutationInput = {
 export type JobSeekerProfileUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   currentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expectedSalaryMin?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedSalaryMax?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedSalaryMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedSalaryMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
@@ -638,8 +638,8 @@ export type JobSeekerProfileCreatepreferredLocationsInput = {
   set: string[]
 }
 
-export type EnumGenderFieldUpdateOperationsInput = {
-  set?: $Enums.Gender
+export type NullableEnumGenderFieldUpdateOperationsInput = {
+  set?: $Enums.Gender | null
 }
 
 export type JobSeekerProfileUpdatepreferredJobTypesInput = {
@@ -654,9 +654,9 @@ export type JobSeekerProfileUpdatepreferredLocationsInput = {
 
 export type JobSeekerProfileCreateWithoutUserInput = {
   id?: string
-  fullName: string
+  fullName?: string | null
   dateOfBirth?: Date | string | null
-  gender: $Enums.Gender
+  gender?: $Enums.Gender | null
   currentLocationId?: string | null
   expectedSalaryMin?: number | null
   expectedSalaryMax?: number | null
@@ -671,9 +671,9 @@ export type JobSeekerProfileCreateWithoutUserInput = {
 
 export type JobSeekerProfileUncheckedCreateWithoutUserInput = {
   id?: string
-  fullName: string
+  fullName?: string | null
   dateOfBirth?: Date | string | null
-  gender: $Enums.Gender
+  gender?: $Enums.Gender | null
   currentLocationId?: string | null
   expectedSalaryMin?: number | null
   expectedSalaryMax?: number | null
@@ -704,12 +704,12 @@ export type JobSeekerProfileUpdateToOneWithWhereWithoutUserInput = {
 
 export type JobSeekerProfileUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   currentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expectedSalaryMin?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedSalaryMax?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedSalaryMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedSalaryMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
@@ -721,12 +721,12 @@ export type JobSeekerProfileUpdateWithoutUserInput = {
 
 export type JobSeekerProfileUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  gender?: Prisma.EnumGenderFieldUpdateOperationsInput | $Enums.Gender
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
   currentLocationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  expectedSalaryMin?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedSalaryMax?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedSalaryMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  expectedSalaryMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
@@ -832,9 +832,9 @@ export type $JobSeekerProfilePayload<ExtArgs extends runtime.Types.Extensions.In
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
-    fullName: string
+    fullName: string | null
     dateOfBirth: Date | null
-    gender: $Enums.Gender
+    gender: $Enums.Gender | null
     currentLocationId: string | null
     expectedSalaryMin: number | null
     expectedSalaryMax: number | null
@@ -1275,8 +1275,8 @@ export interface JobSeekerProfileFieldRefs {
   readonly dateOfBirth: Prisma.FieldRef<"JobSeekerProfile", 'DateTime'>
   readonly gender: Prisma.FieldRef<"JobSeekerProfile", 'Gender'>
   readonly currentLocationId: Prisma.FieldRef<"JobSeekerProfile", 'String'>
-  readonly expectedSalaryMin: Prisma.FieldRef<"JobSeekerProfile", 'Float'>
-  readonly expectedSalaryMax: Prisma.FieldRef<"JobSeekerProfile", 'Float'>
+  readonly expectedSalaryMin: Prisma.FieldRef<"JobSeekerProfile", 'Int'>
+  readonly expectedSalaryMax: Prisma.FieldRef<"JobSeekerProfile", 'Int'>
   readonly experienceYears: Prisma.FieldRef<"JobSeekerProfile", 'Int'>
   readonly about: Prisma.FieldRef<"JobSeekerProfile", 'String'>
   readonly preferredJobTypes: Prisma.FieldRef<"JobSeekerProfile", 'JobType[]'>

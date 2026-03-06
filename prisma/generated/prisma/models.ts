@@ -8,11 +8,11 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/Company'
-export type * from './models/Job'
-export type * from './models/User'
-export type * from './models/JobSeekerProfile'
-export type * from './models/EmployerProfile'
-export type * from './models/ModeratorProfile'
-export type * from './models/AdminProfile'
-export type * from './commonInputTypes'
+export type * from './models/Company.js'
+export type * from './models/Job.js'
+export type * from './models/User.js'
+export type * from './models/JobSeekerProfile.js'
+export type * from './models/EmployerProfile.js'
+export type * from './models/ModeratorProfile.js'
+export type * from './models/AdminProfile.js'
+export type * from './commonInputTypes.js'

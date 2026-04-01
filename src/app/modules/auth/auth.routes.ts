@@ -11,6 +11,7 @@ router.post("/login", AuthController.loginUser);
 router.post("/refresh-token", AuthController.refreshToken);
 router.post('/forgot-password', AuthController.forgotPassword);
 router.post("/reset-password", AuthController.resetPassword);
+router.post("/logout", AuthController.logout);
 
 // Protected routes
 router.post(

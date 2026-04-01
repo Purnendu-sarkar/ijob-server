@@ -131,6 +131,18 @@ const getMe = catchAsync(async (req: Request & { user?: any }, res: Response) =>
   });
 });
 
+const logout = catchAsync(async (req: Request, res: Response) => {
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Logout successful.",
+    data: null,
+  });
+});
+
 export const AuthController = {
   loginUser,
   refreshToken,
@@ -138,4 +150,5 @@ export const AuthController = {
   forgotPassword,
   resetPassword,
   getMe,
+  logout,
 };

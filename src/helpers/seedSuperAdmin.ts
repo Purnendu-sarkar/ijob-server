@@ -2,7 +2,6 @@ import { UserRole, UserStatus } from './../../prisma/generated/prisma/enums';
 import * as bcrypt from "bcryptjs";
 import config from "../config";
 import { prisma } from "../lib/prisma";
-// import prisma from "../shared/prisma";
 
 const seedSuperAdmin = async () => {
   // Skip in production for safety
@@ -22,13 +21,13 @@ const seedSuperAdmin = async () => {
     }
 
     const hashedPassword = await bcrypt.hash(
-      config.super_admin_password || "ChangeMeImmediately123!",
+      config.super_admin.password || "ChangeMeImmediately123!",
       config.salt_rounds
     );
 
     const admin = await prisma.user.create({
       data: {
-        email: config.super_admin_email,
+        email: config.super_admin.password,
         passwordHash: hashedPassword,
         role: UserRole.ADMIN,
         status: UserStatus.ACTIVE,
@@ -51,7 +50,7 @@ const seedSuperAdmin = async () => {
     console.log("Email →", admin.email);
     console.log("User ID →", admin.id);
     console.log("Profile ID →", admin.adminProfile?.id);
-    console.log("\nUse password from .env or default: ", config.super_admin_password);
+    console.log("\nUse password from .env or default: ", config.super_admin.password);
     console.log("CHANGE PASSWORD IMMEDIATELY AFTER FIRST LOGIN!");
   } catch (err) {
     console.error("❌ Failed to create super admin:", err);

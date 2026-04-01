@@ -281,6 +281,125 @@ const resetPassword = async (token: string | null, payload: { email?: string, pa
   })
 };
 
+const getMe = async (userFromRequest: any) => {
+  if (!userFromRequest?.userId) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Authentication required!");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userFromRequest.userId,
+      status: UserStatus.ACTIVE,
+    },
+    include: {
+      jobSeekerProfile: true,
+      employerProfile: {
+        include: {
+          company: true,
+        },
+      },
+      moderatorProfile: true,
+      adminProfile: true,
+    },
+  });
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found or account not active.");
+  }
+
+  // Base user information (common for all roles)
+  const baseUser = {
+    id: user.id,
+    email: user.email,
+    phone: user.phone,
+    role: user.role,
+    fullName: user.fullName,
+    profilePhotoUrl: user.profilePhotoUrl,
+    needPasswordChange: user.needPasswordChange,
+    status: user.status,
+    lastLoginAt: user.lastLoginAt,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+
+  let profile: any = null;
+
+  switch (user.role) {
+    case UserRole.JOB_SEEKER:
+      if (user.jobSeekerProfile) {
+        profile = {
+          jobSeekerProfile: {
+            fullName: user.jobSeekerProfile.fullName,
+            dateOfBirth: user.jobSeekerProfile.dateOfBirth,
+            gender: user.jobSeekerProfile.gender,
+            currentLocationId: user.jobSeekerProfile.currentLocationId,
+            expectedSalaryMin: user.jobSeekerProfile.expectedSalaryMin,
+            expectedSalaryMax: user.jobSeekerProfile.expectedSalaryMax,
+            experienceYears: user.jobSeekerProfile.experienceYears,
+            about: user.jobSeekerProfile.about,
+            preferredJobTypes: user.jobSeekerProfile.preferredJobTypes,
+            preferredLocations: user.jobSeekerProfile.preferredLocations,
+            profileCompletion: user.jobSeekerProfile.profileCompletion,
+          },
+        };
+      }
+      break;
+
+    case UserRole.EMPLOYER:
+      if (user.employerProfile) {
+        profile = {
+          employerProfile: {
+            designation: user.employerProfile.designation,
+            contactName: user.employerProfile.contactName,
+            company: user.employerProfile.company
+              ? {
+                id: user.employerProfile.company.id,
+                name: user.employerProfile.company.name,
+                slug: user.employerProfile.company.slug,
+                logoUrl: user.employerProfile.company.logoUrl,
+                description: user.employerProfile.company.description,
+                website: user.employerProfile.company.website,
+                address: user.employerProfile.company.address,
+                verificationStatus: user.employerProfile.company.verificationStatus,
+              }
+              : null,
+          },
+        };
+      }
+      break;
+
+    case UserRole.MODERATOR:
+      if (user.moderatorProfile) {
+        profile = {
+          moderatorProfile: {
+            bio: user.moderatorProfile.bio,
+            assignedRegions: user.moderatorProfile.assignedRegions,
+          },
+        };
+      }
+      break;
+
+    case UserRole.ADMIN:
+      if (user.adminProfile) {
+        profile = {
+          adminProfile: {
+            department: user.adminProfile.department,
+            permissions: user.adminProfile.permissions || null,
+          },
+        };
+      }
+      break;
+
+    default:
+      // Should never reach here due to enum constraint, but just in case
+      break;
+  }
+
+  return {
+    ...baseUser,
+    ...(profile || {}), 
+  };
+};
 
 
 
@@ -290,4 +409,5 @@ export const AuthServices = {
   changePassword,
   forgotPassword,
   resetPassword,
+  getMe,
 };

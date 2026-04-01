@@ -9,7 +9,7 @@ const router = express.Router();
 // Public routes (rate limited)
 router.post("/login", AuthController.loginUser);
 router.post("/refresh-token", AuthController.refreshToken);
-router.post('/forgot-password',AuthController.forgotPassword);
+router.post('/forgot-password', AuthController.forgotPassword);
 router.post("/reset-password", AuthController.resetPassword);
 
 // Protected routes
@@ -17,6 +17,11 @@ router.post(
   "/change-password",
   auth(UserRole.JOB_SEEKER, UserRole.EMPLOYER, UserRole.MODERATOR, UserRole.ADMIN),
   AuthController.changePassword
+);
+router.get(
+  '/me',
+  auth(UserRole.JOB_SEEKER, UserRole.EMPLOYER, UserRole.MODERATOR, UserRole.ADMIN),
+  AuthController.getMe
 );
 
 

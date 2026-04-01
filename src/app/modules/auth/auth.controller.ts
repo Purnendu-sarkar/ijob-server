@@ -4,6 +4,7 @@ import config from "../../../config";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import { AuthServices } from "./auth.service";
+import ApiError from "../../errors/ApiError";
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const { accessToken, refreshToken, user } = await AuthServices.loginUser(req.body);
@@ -113,6 +114,22 @@ const resetPassword = catchAsync(async (req: Request & { user?: any }, res: Resp
   });
 });
 
+const getMe = catchAsync(async (req: Request & { user?: any }, res: Response) => {
+  const user = req.user;
+
+  if (!user?.userId) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Authentication required!");
+  }
+
+  const result = await AuthServices.getMe(user);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User information retrieved successfully.",
+    data: result,
+  });
+});
 
 export const AuthController = {
   loginUser,
@@ -120,4 +137,5 @@ export const AuthController = {
   changePassword,
   forgotPassword,
   resetPassword,
+  getMe,
 };

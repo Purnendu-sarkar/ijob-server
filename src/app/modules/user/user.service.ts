@@ -1,5 +1,5 @@
 import * as bcrypt from 'bcryptjs';
-import { UserRole, VerificationStatus } from '../../../../prisma/generated/prisma/client';
+import { UserRole, VerificationStatus } from '../../../prisma/generated/client/client';
 import { prisma } from '../../../lib/prisma';
 import config from '../../../config';
 import slugify from 'slugify';

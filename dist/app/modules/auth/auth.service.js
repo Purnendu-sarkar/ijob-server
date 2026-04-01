@@ -1,16 +1,22 @@
-import bcrypt from "bcryptjs";
-import httpStatus from "http-status";
-import config from "../../../config";
-import { jwtHelpers } from "../../../helpers/jwtHelpers";
-import ApiError from "../../errors/ApiError";
-import { prisma } from "../../../lib/prisma";
-import { UserRole, UserStatus } from "../../../../prisma/generated/prisma/enums";
-import emailSender from "./emailSender";
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AuthServices = void 0;
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const http_status_1 = __importDefault(require("http-status"));
+const config_1 = __importDefault(require("../../../config"));
+const jwtHelpers_1 = require("../../../helpers/jwtHelpers");
+const ApiError_1 = __importDefault(require("../../errors/ApiError"));
+const prisma_1 = require("../../../lib/prisma");
+const client_1 = require("../../../prisma/generated/client/client");
+const emailSender_1 = __importDefault(require("./emailSender"));
 const loginUser = async (payload) => {
-    const user = await prisma.user.findUnique({
+    const user = await prisma_1.prisma.user.findUnique({
         where: {
             email: payload.email,
-            status: UserStatus.ACTIVE,
+            status: client_1.UserStatus.ACTIVE,
         },
         select: {
             id: true,
@@ -22,15 +28,15 @@ const loginUser = async (payload) => {
         },
     });
     if (!user) {
-        throw new ApiError(httpStatus.NOT_FOUND, "User not found or account not active.");
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, "User not found or account not active.");
     }
-    const isPasswordValid = await bcrypt.compare(payload.password, user.passwordHash);
+    const isPasswordValid = await bcryptjs_1.default.compare(payload.password, user.passwordHash);
     if (!isPasswordValid) {
-        throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid password.");
+        throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, "Invalid password.");
     }
-    const accessToken = jwtHelpers.generateToken({ userId: user.id, email: user.email, role: user.role }, config.jwt.jwt_secret, "15m" // short lived
+    const accessToken = jwtHelpers_1.jwtHelpers.generateToken({ userId: user.id, email: user.email, role: user.role }, config_1.default.jwt.jwt_secret, "15m" // short lived
     );
-    const refreshToken = jwtHelpers.generateToken({ userId: user.id, email: user.email, role: user.role }, config.jwt.jwt_secret, // same secret for simplicity (or use different)
+    const refreshToken = jwtHelpers_1.jwtHelpers.generateToken({ userId: user.id, email: user.email, role: user.role }, config_1.default.jwt.jwt_secret, // same secret for simplicity (or use different)
     "30d");
     // Optional: store refresh token in DB for revocation (future improvement)
     return {
@@ -42,34 +48,34 @@ const loginUser = async (payload) => {
 const refreshToken = async (oldRefreshToken) => {
     let decoded;
     try {
-        decoded = jwtHelpers.verifyToken(oldRefreshToken, config.jwt.jwt_secret);
+        decoded = jwtHelpers_1.jwtHelpers.verifyToken(oldRefreshToken, config_1.default.jwt.jwt_secret);
     }
     catch (err) {
-        throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid or expired refresh token");
+        throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, "Invalid or expired refresh token");
     }
-    const user = await prisma.user.findUnique({
-        where: { id: decoded.userId, status: UserStatus.ACTIVE },
+    const user = await prisma_1.prisma.user.findUnique({
+        where: { id: decoded.userId, status: client_1.UserStatus.ACTIVE },
     });
     if (!user) {
-        throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, "User not found");
     }
-    const newAccessToken = jwtHelpers.generateToken({ userId: user.id, email: user.email, role: user.role }, config.jwt.jwt_secret, "15m");
-    const newRefreshToken = jwtHelpers.generateToken({ userId: user.id, email: user.email, role: user.role }, config.jwt.jwt_secret, "30d");
+    const newAccessToken = jwtHelpers_1.jwtHelpers.generateToken({ userId: user.id, email: user.email, role: user.role }, config_1.default.jwt.jwt_secret, "15m");
+    const newRefreshToken = jwtHelpers_1.jwtHelpers.generateToken({ userId: user.id, email: user.email, role: user.role }, config_1.default.jwt.jwt_secret, "30d");
     return {
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
     };
 };
 const changePassword = async (user, payload) => {
-    const dbUser = await prisma.user.findUniqueOrThrow({
+    const dbUser = await prisma_1.prisma.user.findUniqueOrThrow({
         where: { id: user.userId },
     });
-    const isOldPasswordCorrect = await bcrypt.compare(payload.oldPassword, dbUser.passwordHash);
+    const isOldPasswordCorrect = await bcryptjs_1.default.compare(payload.oldPassword, dbUser.passwordHash);
     if (!isOldPasswordCorrect) {
-        throw new ApiError(httpStatus.BAD_REQUEST, "Invalid old password.");
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Invalid old password.");
     }
-    const hashed = await bcrypt.hash(payload.newPassword, config.salt_rounds);
-    await prisma.user.update({
+    const hashed = await bcryptjs_1.default.hash(payload.newPassword, config_1.default.salt_rounds);
+    await prisma_1.prisma.user.update({
         where: { id: user.userId },
         data: {
             passwordHash: hashed,
@@ -79,16 +85,16 @@ const changePassword = async (user, payload) => {
     return { message: "Password changed successfully." };
 };
 const forgotPassword = async (payload) => {
-    const userData = await prisma.user.findUniqueOrThrow({
+    const userData = await prisma_1.prisma.user.findUniqueOrThrow({
         where: {
             email: payload.email,
-            status: UserStatus.ACTIVE,
+            status: client_1.UserStatus.ACTIVE,
         },
     });
     console.log(userData.email, userData.id, userData.role);
-    const resetPassToken = jwtHelpers.generateToken({ email: userData.email, userId: userData.id, role: userData.role }, config.jwt.reset_pass_secret, config.jwt.reset_pass_token_expires_in);
-    const resetPassLink = `${config.reset_pass_link}?email=${encodeURIComponent(userData.email)}&token=${resetPassToken}`;
-    await emailSender(userData.email, `
+    const resetPassToken = jwtHelpers_1.jwtHelpers.generateToken({ email: userData.email, userId: userData.id, role: userData.role }, config_1.default.jwt.reset_pass_secret, config_1.default.jwt.reset_pass_token_expires_in);
+    const resetPassLink = `${config_1.default.reset_pass_link}?email=${encodeURIComponent(userData.email)}&token=${resetPassToken}`;
+    await (0, emailSender_1.default)(userData.email, `
     <!DOCTYPE html>
     <html lang="bn">
     <head>
@@ -183,39 +189,39 @@ const resetPassword = async (token, payload, user) => {
     let userEmail;
     // Case 1: Token-based reset (from forgot password email)
     if (token) {
-        const decodedToken = jwtHelpers.verifyToken(token, config.jwt.reset_pass_secret);
+        const decodedToken = jwtHelpers_1.jwtHelpers.verifyToken(token, config_1.default.jwt.reset_pass_secret);
         console.log("DECO", decodedToken);
         if (!decodedToken) {
-            throw new ApiError(httpStatus.FORBIDDEN, "Invalid or expired reset token!");
+            throw new ApiError_1.default(http_status_1.default.FORBIDDEN, "Invalid or expired reset token!");
         }
         // Verify email from token matches the email in payload
         if (payload.email && decodedToken.email !== payload.email) {
-            throw new ApiError(httpStatus.FORBIDDEN, "Email mismatch! Invalid reset request.");
+            throw new ApiError_1.default(http_status_1.default.FORBIDDEN, "Email mismatch! Invalid reset request.");
         }
         userEmail = decodedToken.email;
     }
     // Case 2: Authenticated user with needPasswordChange (newly created admin/doctor)
     else if (user && user.email) {
         console.log({ user }, "needpassworchange");
-        const authenticatedUser = await prisma.user.findUniqueOrThrow({
+        const authenticatedUser = await prisma_1.prisma.user.findUniqueOrThrow({
             where: {
                 email: user.email,
-                status: UserStatus.ACTIVE
+                status: client_1.UserStatus.ACTIVE
             }
         });
         // Verify user actually needs password change
         if (!authenticatedUser.needPasswordChange) {
-            throw new ApiError(httpStatus.BAD_REQUEST, "You don't need to reset your password. Use change password instead.");
+            throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "You don't need to reset your password. Use change password instead.");
         }
         userEmail = user.email;
     }
     else {
-        throw new ApiError(httpStatus.BAD_REQUEST, "Invalid request. Either provide a valid token or be authenticated.");
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Invalid request. Either provide a valid token or be authenticated.");
     }
     // hash password
-    const password = await bcrypt.hash(payload.password, Number(config.salt_rounds));
+    const password = await bcryptjs_1.default.hash(payload.password, Number(config_1.default.salt_rounds));
     // update into database
-    await prisma.user.update({
+    await prisma_1.prisma.user.update({
         where: {
             email: userEmail
         },
@@ -227,12 +233,12 @@ const resetPassword = async (token, payload, user) => {
 };
 const getMe = async (userFromRequest) => {
     if (!userFromRequest?.userId) {
-        throw new ApiError(httpStatus.UNAUTHORIZED, "Authentication required!");
+        throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, "Authentication required!");
     }
-    const user = await prisma.user.findUnique({
+    const user = await prisma_1.prisma.user.findUnique({
         where: {
             id: userFromRequest.userId,
-            status: UserStatus.ACTIVE,
+            status: client_1.UserStatus.ACTIVE,
         },
         include: {
             jobSeekerProfile: true,
@@ -246,7 +252,7 @@ const getMe = async (userFromRequest) => {
         },
     });
     if (!user) {
-        throw new ApiError(httpStatus.NOT_FOUND, "User not found or account not active.");
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, "User not found or account not active.");
     }
     // Base user information (common for all roles)
     const baseUser = {
@@ -264,7 +270,7 @@ const getMe = async (userFromRequest) => {
     };
     let profile = null;
     switch (user.role) {
-        case UserRole.JOB_SEEKER:
+        case client_1.UserRole.JOB_SEEKER:
             if (user.jobSeekerProfile) {
                 profile = {
                     jobSeekerProfile: {
@@ -283,7 +289,7 @@ const getMe = async (userFromRequest) => {
                 };
             }
             break;
-        case UserRole.EMPLOYER:
+        case client_1.UserRole.EMPLOYER:
             if (user.employerProfile) {
                 profile = {
                     employerProfile: {
@@ -305,7 +311,7 @@ const getMe = async (userFromRequest) => {
                 };
             }
             break;
-        case UserRole.MODERATOR:
+        case client_1.UserRole.MODERATOR:
             if (user.moderatorProfile) {
                 profile = {
                     moderatorProfile: {
@@ -315,7 +321,7 @@ const getMe = async (userFromRequest) => {
                 };
             }
             break;
-        case UserRole.ADMIN:
+        case client_1.UserRole.ADMIN:
             if (user.adminProfile) {
                 profile = {
                     adminProfile: {
@@ -334,7 +340,7 @@ const getMe = async (userFromRequest) => {
         ...(profile || {}),
     };
 };
-export const AuthServices = {
+exports.AuthServices = {
     loginUser,
     refreshToken,
     changePassword,

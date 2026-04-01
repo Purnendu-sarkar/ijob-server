@@ -1,4 +1,4 @@
-import { UserRole, UserStatus } from './../../prisma/generated/prisma/enums';
+import { UserRole, UserStatus } from '../prisma/generated/client/client';
 import * as bcrypt from "bcryptjs";
 import config from "../config";
 import { prisma } from "../lib/prisma";

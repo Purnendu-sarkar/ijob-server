@@ -1,8 +1,45 @@
-import { UserRole, UserStatus } from './../../prisma/generated/prisma/enums';
-import * as bcrypt from "bcryptjs";
-import config from "../config";
-import { prisma } from "../lib/prisma";
-// import prisma from "../shared/prisma";
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const enums_1 = require("./../../prisma/generated/prisma/enums");
+const bcrypt = __importStar(require("bcryptjs"));
+const config_1 = __importDefault(require("../config"));
+const prisma_1 = require("../lib/prisma");
 const seedSuperAdmin = async () => {
     // Skip in production for safety
     if (process.env.NODE_ENV === "production") {
@@ -10,20 +47,20 @@ const seedSuperAdmin = async () => {
         return;
     }
     try {
-        const existing = await prisma.user.findFirst({
-            where: { role: UserRole.ADMIN },
+        const existing = await prisma_1.prisma.user.findFirst({
+            where: { role: enums_1.UserRole.ADMIN },
         });
         if (existing) {
             console.log("✅ Super admin already exists →", existing.email);
             return;
         }
-        const hashedPassword = await bcrypt.hash(config.super_admin.password || "ChangeMeImmediately123!", config.salt_rounds);
-        const admin = await prisma.user.create({
+        const hashedPassword = await bcrypt.hash(config_1.default.super_admin.password || "ChangeMeImmediately123!", config_1.default.salt_rounds);
+        const admin = await prisma_1.prisma.user.create({
             data: {
-                email: config.super_admin.password,
+                email: config_1.default.super_admin.password,
                 passwordHash: hashedPassword,
-                role: UserRole.ADMIN,
-                status: UserStatus.ACTIVE,
+                role: enums_1.UserRole.ADMIN,
+                status: enums_1.UserStatus.ACTIVE,
                 fullName: "Super Administrator",
                 adminProfile: {
                     create: {
@@ -42,14 +79,14 @@ const seedSuperAdmin = async () => {
         console.log("Email →", admin.email);
         console.log("User ID →", admin.id);
         console.log("Profile ID →", admin.adminProfile?.id);
-        console.log("\nUse password from .env or default: ", config.super_admin.password);
+        console.log("\nUse password from .env or default: ", config_1.default.super_admin.password);
         console.log("CHANGE PASSWORD IMMEDIATELY AFTER FIRST LOGIN!");
     }
     catch (err) {
         console.error("❌ Failed to create super admin:", err);
     }
     finally {
-        await prisma.$disconnect();
+        await prisma_1.prisma.$disconnect();
     }
 };
-export default seedSuperAdmin;
+exports.default = seedSuperAdmin;

@@ -1,15 +1,21 @@
-import httpStatus from "http-status";
-import config from "../../../config";
-import catchAsync from "../../../shared/catchAsync";
-import sendResponse from "../../../shared/sendResponse";
-import { AuthServices } from "./auth.service";
-import ApiError from "../../errors/ApiError";
-const loginUser = catchAsync(async (req, res) => {
-    const { accessToken, refreshToken, user } = await AuthServices.loginUser(req.body);
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AuthController = void 0;
+const http_status_1 = __importDefault(require("http-status"));
+const config_1 = __importDefault(require("../../../config"));
+const catchAsync_1 = __importDefault(require("../../../shared/catchAsync"));
+const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
+const auth_service_1 = require("./auth.service");
+const ApiError_1 = __importDefault(require("../../errors/ApiError"));
+const loginUser = (0, catchAsync_1.default)(async (req, res) => {
+    const { accessToken, refreshToken, user } = await auth_service_1.AuthServices.loginUser(req.body);
     // Cookie options
     const cookieOptions = {
         httpOnly: true,
-        secure: config.node_env === "production",
+        secure: config_1.default.node_env === "production",
         sameSite: "strict",
     };
     res.cookie("accessToken", accessToken, {
@@ -20,8 +26,8 @@ const loginUser = catchAsync(async (req, res) => {
         ...cookieOptions,
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
-    sendResponse(res, {
-        statusCode: httpStatus.OK,
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
         success: true,
         message: "Login successful.",
         data: {
@@ -35,88 +41,88 @@ const loginUser = catchAsync(async (req, res) => {
         },
     });
 });
-const refreshToken = catchAsync(async (req, res) => {
+const refreshToken = (0, catchAsync_1.default)(async (req, res) => {
     const { refreshToken } = req.cookies;
     if (!refreshToken) {
         throw new Error("Refresh token not found!");
     }
-    const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await AuthServices.refreshToken(refreshToken);
+    const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await auth_service_1.AuthServices.refreshToken(refreshToken);
     res.cookie("accessToken", newAccessToken, {
         httpOnly: true,
-        secure: config.node_env === "production",
+        secure: config_1.default.node_env === "production",
         sameSite: "strict",
         maxAge: 15 * 60 * 1000,
     });
     res.cookie("refreshToken", newRefreshToken, {
         httpOnly: true,
-        secure: config.node_env === "production",
+        secure: config_1.default.node_env === "production",
         sameSite: "strict",
         maxAge: 30 * 24 * 60 * 60 * 1000,
     });
-    sendResponse(res, {
-        statusCode: httpStatus.OK,
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
         success: true,
         message: "New access token generated.",
         data: null,
     });
 });
-const changePassword = catchAsync(async (req, res) => {
-    const result = await AuthServices.changePassword(req.user, req.body);
-    sendResponse(res, {
-        statusCode: httpStatus.OK,
+const changePassword = (0, catchAsync_1.default)(async (req, res) => {
+    const result = await auth_service_1.AuthServices.changePassword(req.user, req.body);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
         success: true,
         message: "Password changed successfully.",
         data: result,
     });
 });
-const forgotPassword = catchAsync(async (req, res) => {
-    await AuthServices.forgotPassword(req.body);
-    sendResponse(res, {
-        statusCode: httpStatus.OK,
+const forgotPassword = (0, catchAsync_1.default)(async (req, res) => {
+    await auth_service_1.AuthServices.forgotPassword(req.body);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
         success: true,
         message: "Check your email!",
         data: null,
     });
 });
-const resetPassword = catchAsync(async (req, res) => {
+const resetPassword = (0, catchAsync_1.default)(async (req, res) => {
     console.log("REQ", req);
     // Extract token from Authorization header (remove "Bearer " prefix)
     const authHeader = req.headers.authorization;
     console.log(authHeader, "authHeader in resetPassword controller");
     const token = authHeader ? authHeader.replace('Bearer ', '') : null;
     const user = req.user; // Will be populated if authenticated via middleware
-    await AuthServices.resetPassword(token, req.body, user);
-    sendResponse(res, {
-        statusCode: httpStatus.OK,
+    await auth_service_1.AuthServices.resetPassword(token, req.body, user);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
         success: true,
         message: "Password Reset!",
         data: null,
     });
 });
-const getMe = catchAsync(async (req, res) => {
+const getMe = (0, catchAsync_1.default)(async (req, res) => {
     const user = req.user;
     if (!user?.userId) {
-        throw new ApiError(httpStatus.UNAUTHORIZED, "Authentication required!");
+        throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, "Authentication required!");
     }
-    const result = await AuthServices.getMe(user);
-    sendResponse(res, {
-        statusCode: httpStatus.OK,
+    const result = await auth_service_1.AuthServices.getMe(user);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
         success: true,
         message: "User information retrieved successfully.",
         data: result,
     });
 });
-const logout = catchAsync(async (req, res) => {
+const logout = (0, catchAsync_1.default)(async (req, res) => {
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
-    sendResponse(res, {
-        statusCode: httpStatus.OK,
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
         success: true,
         message: "Logout successful.",
         data: null,
     });
 });
-export const AuthController = {
+exports.AuthController = {
     loginUser,
     refreshToken,
     changePassword,

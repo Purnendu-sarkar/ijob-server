@@ -5,7 +5,7 @@ import config from "../../../config";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import ApiError from "../../errors/ApiError";
 import { prisma } from "../../../lib/prisma";
-import { UserRole, UserStatus } from "../../../../prisma/generated/prisma/enums";
+import { UserRole, UserStatus } from "../../../prisma/generated/client/client";
 import emailSender from "./emailSender";
 
 const loginUser = async (payload: { email: string; password: string }) => {

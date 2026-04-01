@@ -1,15 +1,20 @@
-import app from './app';
-import config from './config';
-import seedSuperAdmin from './helpers/seedSuperAdmin';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const app_1 = __importDefault(require("./app"));
+const config_1 = __importDefault(require("./config"));
+const seedSuperAdmin_1 = __importDefault(require("./helpers/seedSuperAdmin"));
 async function bootstrap() {
     // Seed super admin
-    await seedSuperAdmin();
+    await (0, seedSuperAdmin_1.default)();
     // This variable will hold our server instance
     let server;
     try {
         // Start the server
-        server = app.listen(config.port, () => {
-            console.log(`🚀 Server is running on http://localhost:${config.port}`);
+        server = app_1.default.listen(config_1.default.port, () => {
+            console.log(`🚀 Server is running on http://localhost:${config_1.default.port}`);
         });
         // Function to gracefully shut down the server
         const exitHandler = () => {

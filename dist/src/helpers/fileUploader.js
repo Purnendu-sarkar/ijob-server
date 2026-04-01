@@ -1,11 +1,17 @@
-import multer from "multer";
-import path from "path";
-import { v2 as cloudinary } from 'cloudinary';
-import config from "../config";
-import fs from 'fs';
-const storage = multer.diskStorage({
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.fileUploader = void 0;
+const multer_1 = __importDefault(require("multer"));
+const path_1 = __importDefault(require("path"));
+const cloudinary_1 = require("cloudinary");
+const config_1 = __importDefault(require("../config"));
+const fs_1 = __importDefault(require("fs"));
+const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(process.cwd(), '/uploads'));
+        cb(null, path_1.default.join(process.cwd(), '/uploads'));
     },
     filename: function (req, file, cb) {
         cb(null, file.originalname);
@@ -13,13 +19,13 @@ const storage = multer.diskStorage({
 });
 async function uploadToCloudinary(file) {
     // Configuration
-    cloudinary.config({
-        cloud_name: config.cloudinary.cloud_name,
-        api_key: config.cloudinary.api_key,
-        api_secret: config.cloudinary.api_secret
+    cloudinary_1.v2.config({
+        cloud_name: config_1.default.cloudinary.cloud_name,
+        api_key: config_1.default.cloudinary.api_key,
+        api_secret: config_1.default.cloudinary.api_secret
     });
     // Upload an image
-    const uploadResult = await cloudinary.uploader
+    const uploadResult = await cloudinary_1.v2.uploader
         .upload(file.path, {
         public_id: `${file.originalname}-${Date.now()}`,
         folder: 'ijob_project'
@@ -27,7 +33,7 @@ async function uploadToCloudinary(file) {
         .catch((error) => {
         throw error;
     });
-    fs.unlinkSync(file.path);
+    fs_1.default.unlinkSync(file.path);
     return uploadResult;
     // // Optimize delivery by resizing and applying auto-format and auto-quality
     // const optimizeUrl = cloudinary.url(`${uploadResult?.public_id}`, {
@@ -45,8 +51,8 @@ async function uploadToCloudinary(file) {
     // console.log(autoCropUrl);    
 }
 ;
-const upload = multer({ storage: storage });
-export const fileUploader = {
+const upload = (0, multer_1.default)({ storage: storage });
+exports.fileUploader = {
     upload,
     uploadToCloudinary
 };

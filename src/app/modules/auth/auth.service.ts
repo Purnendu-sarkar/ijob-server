@@ -5,7 +5,7 @@ import config from "../../../config";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import ApiError from "../../errors/ApiError";
 import { prisma } from "../../../lib/prisma";
-import { UserStatus } from "../../../../prisma/generated/prisma/enums";
+import { UserRole, UserStatus } from "../../../../prisma/generated/prisma/enums";
 
 const loginUser = async (payload: { email: string; password: string }) => {
   const user = await prisma.user.findUnique({
@@ -87,7 +87,35 @@ const refreshToken = async (oldRefreshToken: string) => {
   };
 };
 
+const changePassword = async (
+  user: { userId: string; email: string; role: UserRole },
+  payload: { oldPassword: string; newPassword: string }
+) => {
+  const dbUser = await prisma.user.findUniqueOrThrow({
+    where: { id: user.userId },
+  });
+
+  const isOldPasswordCorrect = await bcrypt.compare(payload.oldPassword, dbUser.passwordHash);
+  if (!isOldPasswordCorrect) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Invalid old password.");
+  }
+
+  const hashed = await bcrypt.hash(payload.newPassword, config.salt_rounds);
+
+  await prisma.user.update({
+    where: { id: user.userId },
+    data: {
+      passwordHash: hashed,
+      needPasswordChange: false,
+    },
+  });
+
+  return { message: "Password changed successfully." };
+};
+
+
 export const AuthServices = {
   loginUser,
   refreshToken,
+  changePassword,
 };

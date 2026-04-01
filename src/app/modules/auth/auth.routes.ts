@@ -9,6 +9,7 @@ const router = express.Router();
 // Public routes (rate limited)
 router.post("/login", AuthController.loginUser);
 router.post("/refresh-token", AuthController.refreshToken);
+router.post('/forgot-password',AuthController.forgotPassword);
 
 // Protected routes
 router.post(

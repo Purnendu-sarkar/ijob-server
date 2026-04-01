@@ -6,6 +6,7 @@ import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import ApiError from "../../errors/ApiError";
 import { prisma } from "../../../lib/prisma";
 import { UserRole, UserStatus } from "../../../../prisma/generated/prisma/enums";
+import emailSender from "./emailSender";
 
 const loginUser = async (payload: { email: string; password: string }) => {
   const user = await prisma.user.findUnique({
@@ -113,9 +114,122 @@ const changePassword = async (
   return { message: "Password changed successfully." };
 };
 
+const forgotPassword = async (payload: { email: string }) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: payload.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+  console.log(userData.email, userData.id, userData.role)
+
+  const resetPassToken = jwtHelpers.generateToken(
+    { email: userData.email, userId: userData.id, role: userData.role },
+    config.jwt.reset_pass_secret as Secret,
+    config.jwt.reset_pass_token_expires_in as string
+  );
+
+  const resetPassLink = `${config.reset_pass_link}?email=${encodeURIComponent(userData.email)}&token=${resetPassToken}`;
+
+  await emailSender(
+    userData.email,
+    `
+    <!DOCTYPE html>
+    <html lang="bn">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Reset password - iJob Bangladesh</title>
+    </head>
+    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8fafc;">
+        <table role="presentation" style="inline-size: 100%; border-collapse: collapse;">
+            <tr>
+                <td align="center" style="padding: 40px 20px;">
+                    <table role="presentation" style="max-inline-size: 600px; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); overflow: hidden;">
+                        
+                        <!-- Header -->
+                        <tr>
+                            <td style="padding: 40px 40px 25px 40px; text-align: center; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);">
+                                <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">iJob Bangladesh</h1>
+                                <p style="margin: 8px 0 0 0; color: #dbeafe; font-size: 15px;">Correct Job, Correct Time</p>
+                            </td>
+                        </tr>
+
+                        <!-- Content -->
+                        <tr>
+                            <td style="padding: 45px 40px 40px 40px;">
+                                <h2 style="margin: 0 0 20px 0; color: #1e2937; font-size: 24px; font-weight: 600;">
+                                    Reset Password
+                                </h2>
+                                
+                                <p style="margin: 0 0 25px 0; color: #334155; font-size: 16px; line-height: 26px;">
+                                    Dear User,
+                                </p>
+                                
+                                <p style="margin: 0 0 30px 0; color: #334155; font-size: 16px; line-height: 26px;">
+                                    You have requested to reset your password for your iJob Bangladesh account. 
+                                    Please click the button below to create a new password:
+                                </p>
+
+                                <!-- Reset Button -->
+                                <table role="presentation" style="margin: 0 auto 30px auto;">
+                                    <tr>
+                                        <td style="border-radius: 8px; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);">
+                                            <a href="${resetPassLink}" 
+                                               style="display: inline-block; padding: 16px 36px; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: 600; border-radius: 8px;">
+                                                Reset Password
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!-- Fallback Link -->
+                                <p style="margin: 20px 0 8px 0; color: #64748b; font-size: 14.5px;">
+                                    Or copy and paste this link into your browser:
+                                </p>
+                                <p style="margin: 0 0 35px 0; color: #2563eb; font-size: 14px; line-height: 22px; word-break: break-all;">
+                                    ${resetPassLink}
+                                </p>
+
+                                <!-- Security Notice -->
+                                <div style="background-color: #f8fafc; border-inline-start: 4px solid #3b82f6; padding: 20px; border-radius: 6px;">
+                                    <p style="margin: 0 0 12px 0; color: #1e2937; font-size: 15px; font-weight: 600;">
+                                        Security Notice:
+                                    </p>
+                                    <ul style="margin: 0; padding-inline-start: 20px; color: #475569; font-size: 14.5px; line-height: 24px;">
+                                        <li>This link is only valid for <strong>15 minutes</strong></li>
+                                        <li>If you did not request this, please ignore this email</li>
+                                        <li>For security reasons, do not share this link with anyone</li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Footer -->
+                        <tr>
+                            <td style="padding: 35px 40px; background-color: #f8fafc; text-align: center; border-block-start: 1px solid #e2e8f0;">
+                                <p style="margin: 0 0 8px 0; color: #64748b; font-size: 14px;">
+                                    © ${new Date().getFullYear()} iJob Bangladesh. All rights reserved.
+                                </p>
+                                <p style="margin: 0; color: #94a3b8; font-size: 13px;">
+                                    This is an automated email. Please do not reply.
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+    `
+  );
+};
+
 
 export const AuthServices = {
   loginUser,
   refreshToken,
   changePassword,
+  forgotPassword,
 };

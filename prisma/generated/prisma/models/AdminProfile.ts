@@ -1098,6 +1098,11 @@ export type AdminProfileFindManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Skip the first `n` AdminProfiles.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of AdminProfiles.
+   */
   distinct?: Prisma.AdminProfileScalarFieldEnum | Prisma.AdminProfileScalarFieldEnum[]
 }
 

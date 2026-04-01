@@ -24,6 +24,7 @@ const createJobSeeker = async (payload: any) => {
         passwordHash: hashedPassword,
         role: UserRole.JOB_SEEKER,
         fullName: rest.fullName,
+        needPasswordChange: false,
         profilePhotoUrl: rest.profilePhotoUrl,
       },
     });
@@ -103,6 +104,7 @@ const createEmployer = async (payload: any) => {
         role: UserRole.EMPLOYER,
         fullName: rest.fullName,
         profilePhotoUrl: rest.profilePhotoUrl || null,
+        needPasswordChange: false,
       },
     });
 

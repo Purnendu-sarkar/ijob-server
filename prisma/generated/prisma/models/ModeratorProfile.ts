@@ -1107,6 +1107,11 @@ export type ModeratorProfileFindManyArgs<ExtArgs extends runtime.Types.Extension
    * Skip the first `n` ModeratorProfiles.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of ModeratorProfiles.
+   */
   distinct?: Prisma.ModeratorProfileScalarFieldEnum | Prisma.ModeratorProfileScalarFieldEnum[]
 }
 

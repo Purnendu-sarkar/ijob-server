@@ -1291,6 +1291,11 @@ export type EmployerProfileFindManyArgs<ExtArgs extends runtime.Types.Extensions
    * Skip the first `n` EmployerProfiles.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of EmployerProfiles.
+   */
   distinct?: Prisma.EmployerProfileScalarFieldEnum | Prisma.EmployerProfileScalarFieldEnum[]
 }
 

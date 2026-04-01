@@ -5,6 +5,7 @@ model User {
     email        String     @unique
     phone        String?    
     passwordHash String
+    needPasswordChange Boolean    @default(true)
     role         UserRole
     status       UserStatus @default(ACTIVE)
 

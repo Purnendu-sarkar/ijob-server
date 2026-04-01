@@ -41,7 +41,39 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const refreshToken = catchAsync(async (req: Request, res: Response) => {
+  const { refreshToken } = req.cookies;
+
+  if (!refreshToken) {
+    throw new Error("Refresh token not found!");
+  }
+
+  const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+    await AuthServices.refreshToken(refreshToken);
+
+  res.cookie("accessToken", newAccessToken, {
+    httpOnly: true,
+    secure: config.node_env === "production",
+    sameSite: "strict",
+    maxAge: 15 * 60 * 1000,
+  });
+
+  res.cookie("refreshToken", newRefreshToken, {
+    httpOnly: true,
+    secure: config.node_env === "production",
+    sameSite: "strict",
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+  });
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "New access token generated.",
+    data: null,
+  });
+});
 
 export const AuthController = {
   loginUser,
+  refreshToken,
 };

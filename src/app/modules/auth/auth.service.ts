@@ -53,6 +53,41 @@ const loginUser = async (payload: { email: string; password: string }) => {
   };
 };
 
+const refreshToken = async (oldRefreshToken: string) => {
+  let decoded;
+  try {
+    decoded = jwtHelpers.verifyToken(oldRefreshToken, config.jwt.jwt_secret as Secret);
+  } catch (err) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid or expired refresh token");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: decoded.userId, status: UserStatus.ACTIVE },
+  });
+
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const newAccessToken = jwtHelpers.generateToken(
+    { userId: user.id, email: user.email, role: user.role },
+    config.jwt.jwt_secret as Secret,
+    "15m"
+  );
+
+  const newRefreshToken = jwtHelpers.generateToken(
+    { userId: user.id, email: user.email, role: user.role },
+    config.jwt.jwt_secret as Secret,
+    "30d"
+  );
+
+  return {
+    accessToken: newAccessToken,
+    refreshToken: newRefreshToken,
+  };
+};
+
 export const AuthServices = {
   loginUser,
+  refreshToken,
 };

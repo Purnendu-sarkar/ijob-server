@@ -57,11 +57,12 @@ const seedSuperAdmin = async () => {
         const hashedPassword = await bcrypt.hash(config_1.default.super_admin.password || "ChangeMeImmediately123!", config_1.default.salt_rounds);
         const admin = await prisma_1.prisma.user.create({
             data: {
-                email: config_1.default.super_admin.password,
+                email: config_1.default.super_admin.email,
                 passwordHash: hashedPassword,
                 role: client_1.UserRole.ADMIN,
                 status: client_1.UserStatus.ACTIVE,
                 fullName: "Super Administrator",
+                needPasswordChange: false,
                 adminProfile: {
                     create: {
                     // Add fields if you have them (department, etc.)

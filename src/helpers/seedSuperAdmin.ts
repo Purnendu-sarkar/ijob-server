@@ -27,11 +27,12 @@ const seedSuperAdmin = async () => {
 
     const admin = await prisma.user.create({
       data: {
-        email: config.super_admin.password,
+        email: config.super_admin.email,
         passwordHash: hashedPassword,
         role: UserRole.ADMIN,
         status: UserStatus.ACTIVE,
         fullName: "Super Administrator",
+        needPasswordChange: false,
         adminProfile: {
           create: {
             // Add fields if you have them (department, etc.)

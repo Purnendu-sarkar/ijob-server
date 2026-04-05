@@ -6,6 +6,30 @@ import { userService } from './user.service';
 import { fileUploader } from '../../../helpers/fileUploader';
 
 
+const createAdmin = catchAsync(async (req: Request, res: Response) => {
+  let profilePhotoUrl: string | null = null;
+
+  // File upload to Cloudinary
+  if (req.file) {
+    const uploaded = await fileUploader.uploadToCloudinary(req.file);
+    profilePhotoUrl = uploaded?.secure_url || null;
+  }
+
+  // Merge file URL with body
+  const payload = {
+    ...req.body,
+    profilePhotoUrl,
+  };
+
+  const result = await userService.createAdmin(payload);
+
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: "Admin created successfully",
+    data: result,
+  });
+});
 
 const createJobSeeker = catchAsync(async (req: Request, res: Response) => {
   console.log("DATA", req.body)
@@ -59,4 +83,5 @@ const createEmployer = catchAsync(async (req: Request, res: Response) => {
 export const userController = {
   createJobSeeker,
   createEmployer,
+  createAdmin,
 };

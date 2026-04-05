@@ -19,6 +19,24 @@ const phoneSchema = z
 
 const fullNameSchema = z.string().min(2).max(100).optional();
 
+// ── Admin Creation ─────────────────────────────────────
+export const createAdminValidationSchema = z.object({
+  body: z.object({
+    password: passwordSchema,
+
+    admin: z.object({
+      name: z.string().min(2, "Name must be at least 2 characters").max(100),
+      email: emailSchema,
+      phone: z
+        .string()
+        .regex(/^(01[3-9]\d{8})$/, "Invalid Bangladeshi phone number")
+        .optional(),
+      department: z.string().max(100).optional(),
+      // permissions: z.record(z.boolean()).optional(),
+    }),
+  }),
+});
+
 // ── Job Seeker ─────────────────────────────────────────
 export const createJobSeekerValidationSchema = z.object({
   body: z.object({
@@ -84,5 +102,6 @@ export const createEmployerValidationSchema = z.object({
 export const userValidation = {
   createJobSeeker: createJobSeekerValidationSchema,
   createEmployer: createEmployerValidationSchema,
+  createAdmin: createAdminValidationSchema,
 };
 

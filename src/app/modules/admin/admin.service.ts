@@ -92,6 +92,41 @@ const getAllFromDB = async (params: IAdminFilterRequest, options: IPaginationOpt
     };
 };
 
+const getByIdFromDB = async (id: string) => {
+    const result = await prisma.adminProfile.findUnique({
+        where: {
+            id,
+            user: { status: { not: UserStatus.DELETED } },
+        },
+        select: {
+            id: true,
+            userId: true,
+            permissions: true,
+            department: true,
+            createdAt: true,
+            updatedAt: true,
+            user: {
+                select: {
+                    id: true,
+                    email: true,
+                    phone: true,
+                    fullName: true,
+                    profilePhotoUrl: true,
+                    role: true,
+                    status: true,
+                    needPasswordChange: true,
+                    lastLoginAt: true,
+                    createdAt: true,
+                    updatedAt: true,
+                },
+            },
+        },
+    });
+
+    return result;
+};
+
 export const AdminService = {
     getAllFromDB,
+    getByIdFromDB,
 };

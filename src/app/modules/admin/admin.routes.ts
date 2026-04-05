@@ -7,8 +7,14 @@ const router = express.Router();
 
 router.get(
     '/',
-    auth( UserRole.ADMIN),
+    auth(UserRole.ADMIN),
     AdminController.getAllFromDB
+);
+
+router.get(
+    '/:id',
+    auth(UserRole.ADMIN),
+    AdminController.getByIdFromDB
 );
 
 export const AdminRoutes = router;

@@ -126,7 +126,57 @@ const getByIdFromDB = async (id: string) => {
     return result;
 };
 
+const updateIntoDB = async (id: string, payload: { name?: string; phone?: string }) => {
+  // Existence check
+  await prisma.adminProfile.findFirstOrThrow({
+    where: { id, user: { status: { not: UserStatus.DELETED } } },
+  });
+
+  const updateData: Prisma.AdminProfileUpdateInput = {};
+
+  // Update User table (fullName & phone)
+  if (payload.name || payload.phone) {
+    updateData.user = {
+      update: {
+        ...(payload.name && { fullName: payload.name }),
+        ...(payload.phone && { phone: payload.phone }),
+      },
+    };
+  }
+
+  const result = await prisma.adminProfile.update({
+    where: { id },
+    data: updateData,
+    select: {
+      id: true,
+      userId: true,
+      permissions: true,
+      department: true,
+      createdAt: true,
+      updatedAt: true,
+      user: {
+        select: {
+          id: true,
+          email: true,
+          phone: true,
+          fullName: true,
+          profilePhotoUrl: true,
+          role: true,
+          status: true,
+          needPasswordChange: true,
+          lastLoginAt: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
+
+  return result;
+};
+
 export const AdminService = {
     getAllFromDB,
     getByIdFromDB,
+    updateIntoDB,
 };

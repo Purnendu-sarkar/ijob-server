@@ -127,56 +127,71 @@ const getByIdFromDB = async (id: string) => {
 };
 
 const updateIntoDB = async (id: string, payload: { name?: string; phone?: string }) => {
-  // Existence check
-  await prisma.adminProfile.findFirstOrThrow({
-    where: { id, user: { status: { not: UserStatus.DELETED } } },
-  });
+    // Existence check
+    await prisma.adminProfile.findFirstOrThrow({
+        where: { id, user: { status: { not: UserStatus.DELETED } } },
+    });
 
-  const updateData: Prisma.AdminProfileUpdateInput = {};
+    const updateData: Prisma.AdminProfileUpdateInput = {};
 
-  // Update User table (fullName & phone)
-  if (payload.name || payload.phone) {
-    updateData.user = {
-      update: {
-        ...(payload.name && { fullName: payload.name }),
-        ...(payload.phone && { phone: payload.phone }),
-      },
-    };
-  }
+    // Update User table (fullName & phone)
+    if (payload.name || payload.phone) {
+        updateData.user = {
+            update: {
+                ...(payload.name && { fullName: payload.name }),
+                ...(payload.phone && { phone: payload.phone }),
+            },
+        };
+    }
 
-  const result = await prisma.adminProfile.update({
-    where: { id },
-    data: updateData,
-    select: {
-      id: true,
-      userId: true,
-      permissions: true,
-      department: true,
-      createdAt: true,
-      updatedAt: true,
-      user: {
+    const result = await prisma.adminProfile.update({
+        where: { id },
+        data: updateData,
         select: {
-          id: true,
-          email: true,
-          phone: true,
-          fullName: true,
-          profilePhotoUrl: true,
-          role: true,
-          status: true,
-          needPasswordChange: true,
-          lastLoginAt: true,
-          createdAt: true,
-          updatedAt: true,
+            id: true,
+            userId: true,
+            permissions: true,
+            department: true,
+            createdAt: true,
+            updatedAt: true,
+            user: {
+                select: {
+                    id: true,
+                    email: true,
+                    phone: true,
+                    fullName: true,
+                    profilePhotoUrl: true,
+                    role: true,
+                    status: true,
+                    needPasswordChange: true,
+                    lastLoginAt: true,
+                    createdAt: true,
+                    updatedAt: true,
+                },
+            },
         },
-      },
-    },
-  });
+    });
 
-  return result;
+    return result;
 };
+
+const softDeleteFromDB = async (id: string) => {
+    const admin = await prisma.adminProfile.findFirstOrThrow({
+        where: { id, user: { status: { not: UserStatus.DELETED } } },
+    });
+
+    await prisma.user.update({
+        where: { id: admin.userId },
+        data: { status: UserStatus.DELETED },
+    });
+
+    return { message: "Admin has been soft deleted successfully", id };
+};
+
 
 export const AdminService = {
     getAllFromDB,
     getByIdFromDB,
     updateIntoDB,
+    softDeleteFromDB,
 };

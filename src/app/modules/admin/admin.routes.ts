@@ -26,4 +26,10 @@ router.patch(
     AdminController.updateIntoDB
 );
 
+router.delete(
+    '/soft/:id',
+    auth(UserRole.ADMIN),
+    AdminController.softDeleteFromDB
+);
+
 export const AdminRoutes = router;

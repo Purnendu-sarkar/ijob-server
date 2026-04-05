@@ -32,4 +32,10 @@ router.delete(
     AdminController.softDeleteFromDB
 );
 
+router.delete(
+    '/:id',
+    auth(UserRole.ADMIN),
+    AdminController.deleteFromDB
+);
+
 export const AdminRoutes = router;

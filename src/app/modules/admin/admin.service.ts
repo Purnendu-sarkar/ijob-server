@@ -188,10 +188,22 @@ const softDeleteFromDB = async (id: string) => {
     return { message: "Admin has been soft deleted successfully", id };
 };
 
+const deleteFromDB = async (id: string) => {
+    const admin = await prisma.adminProfile.findUniqueOrThrow({ where: { id } });
+
+    await prisma.$transaction([
+        prisma.adminProfile.delete({ where: { id } }),
+        prisma.user.delete({ where: { id: admin.userId } }),
+    ]);
+
+    return { message: "Admin permanently deleted", id };
+};
+
 
 export const AdminService = {
     getAllFromDB,
     getByIdFromDB,
     updateIntoDB,
     softDeleteFromDB,
+    deleteFromDB
 };

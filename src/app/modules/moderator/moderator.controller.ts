@@ -45,7 +45,20 @@ const getAllFromDB: RequestHandler = catchAsync(async (req: Request, res: Respon
     });
 });
 
+const getByIdFromDB = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await ModeratorService.getByIdFromDB(id as string);
+    console.log("Result", result)
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Moderator data fetched by id!",
+        data: result
+    });
+});
+
 export const ModeratorController = {
     createModerator,
     getAllFromDB,
+    getByIdFromDB
 };

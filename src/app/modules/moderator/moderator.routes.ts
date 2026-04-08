@@ -14,6 +14,13 @@ router.get(
     ModeratorController.getAllFromDB
 );
 
+router.get(
+    '/:id',
+    auth(UserRole.ADMIN),
+    ModeratorController.getByIdFromDB
+);
+
+
 router.post(
     '/create-moderator',
     auth(UserRole.ADMIN),

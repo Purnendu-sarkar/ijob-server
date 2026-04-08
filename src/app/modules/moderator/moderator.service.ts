@@ -172,8 +172,50 @@ const getAllFromDB = async (params: IModeratorFilterRequest, options: IPaginatio
     };
 };
 
+const getByIdFromDB = async (id: string) => {
+    const result = await prisma.moderatorProfile.findUnique({
+        where: {
+            id,
+            user: {
+                status: { not: UserStatus.DELETED }
+            },
+        },
+        select: {
+            id: true,
+            userId: true,
+            bio: true,
+            assignedRegions: true,
+            createdAt: true,
+            updatedAt: true,
+            user: {
+                select: {
+                    id: true,
+                    email: true,
+                    phone: true,
+                    fullName: true,
+                    profilePhotoUrl: true,
+                    role: true,
+                    status: true,
+                    needPasswordChange: true,
+                    lastLoginAt: true,
+                    createdAt: true,
+                    updatedAt: true,
+                },
+            },
+        },
+    });
+
+    if (!result) {
+        throw new Error("Moderator not found or has been deleted");
+    }
+
+    return result;
+};
+
+
 
 export const ModeratorService = {
     createModerator,
     getAllFromDB,
+    getByIdFromDB,
 };

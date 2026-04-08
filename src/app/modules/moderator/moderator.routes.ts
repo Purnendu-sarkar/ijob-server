@@ -8,6 +8,12 @@ import { ModeratorController } from './moderator.controller';
 
 const router = express.Router();
 
+router.get(
+    '/',
+    auth(UserRole.ADMIN),           // Only Admin can see all moderators
+    ModeratorController.getAllFromDB
+);
+
 router.post(
     '/create-moderator',
     auth(UserRole.ADMIN),

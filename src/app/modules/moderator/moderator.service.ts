@@ -2,6 +2,9 @@ import bcrypt from 'bcryptjs';
 import { Prisma, UserRole, UserStatus } from "../../../prisma/generated/client/client";
 import { prisma } from "../../../lib/prisma";
 import config from "../../../config";
+import { IPaginationOptions } from '../../interfaces/pagination';
+import { paginationHelper } from '../../../helpers/paginationHelper';
+import { IModeratorFilterRequest } from './moderator.interface';
 
 const createModerator = async (payload: any) => {
     const { password, moderator, profilePhotoUrl } = payload;
@@ -56,7 +59,121 @@ const createModerator = async (payload: any) => {
     );
 };
 
+const getAllFromDB = async (params: IModeratorFilterRequest, options: IPaginationOptions) => {
+    const { page, limit, skip } = paginationHelper.calculatePagination(options);
+    const { searchTerm, ...filterData } = params;
+
+    const andConditions: Prisma.ModeratorProfileWhereInput[] = [];
+
+    if (searchTerm) {
+        andConditions.push({
+            user: {
+                OR: [
+                    { fullName: { contains: searchTerm, mode: 'insensitive' } },
+                    { email: { contains: searchTerm, mode: 'insensitive' } },
+                    { phone: { contains: searchTerm, mode: 'insensitive' } },
+                ],
+            },
+        });
+    }
+
+    if (Object.keys(filterData).length > 0) {
+        const filterConditions: Prisma.ModeratorProfileWhereInput[] = [];
+
+        if (filterData.fullName) filterConditions.push({ user: { fullName: { equals: filterData.fullName, mode: 'insensitive' } } });
+        if (filterData.email) filterConditions.push({ user: { email: { equals: filterData.email, mode: 'insensitive' } } });
+        if (filterData.phone) filterConditions.push({ user: { phone: { equals: filterData.phone } } });
+        if (filterData.assignedRegions) {
+            const regions =
+                typeof filterData.assignedRegions === "string"
+                    ? filterData.assignedRegions.split(",")
+                    : filterData.assignedRegions;
+
+            filterConditions.push({
+                assignedRegions: {
+                    hasSome: regions,
+                },
+            });
+        }
+
+        if (filterConditions.length > 0) {
+            andConditions.push({ AND: filterConditions });
+        }
+    }
+
+    andConditions.push({
+        user: { status: { not: UserStatus.DELETED } },
+    });
+
+    const whereConditions: Prisma.ModeratorProfileWhereInput = { AND: andConditions };
+
+    const select = {
+        id: true,
+        userId: true,
+        bio: true,
+        assignedRegions: true,
+        createdAt: true,
+        updatedAt: true,
+        user: {
+            select: {
+                id: true,
+                email: true,
+                phone: true,
+                fullName: true,
+                profilePhotoUrl: true,
+                role: true,
+                status: true,
+                needPasswordChange: true,
+                lastLoginAt: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        },
+    };
+
+    let orderBy: Prisma.ModeratorProfileOrderByWithRelationInput = {
+        createdAt: 'desc',
+    };
+
+    if (options.sortBy && options.sortOrder) {
+        if (options.sortBy === "name") {
+            orderBy = {
+                user: {
+                    fullName: options.sortOrder as Prisma.SortOrder,
+                },
+            };
+        } else if (options.sortBy === "email") {
+            orderBy = {
+                user: {
+                    email: options.sortOrder as Prisma.SortOrder,
+                },
+            };
+        } else {
+            orderBy = {
+                [options.sortBy]: options.sortOrder as Prisma.SortOrder,
+            };
+        }
+    }
+
+    const result = await prisma.moderatorProfile.findMany({
+        where: whereConditions,
+        skip,
+        take: limit,
+        orderBy,
+        //: options.sortBy ? { [options.sortBy]: options.sortOrder as Prisma.SortOrder } : { createdAt: 'desc' },
+        select,
+    });
+
+    const total = await prisma.moderatorProfile.count({ where: whereConditions });
+
+    return {
+        meta: { page, limit, total },
+        data: result,
+    };
+};
+
 
 export const ModeratorService = {
     createModerator,
+    getAllFromDB,
 };

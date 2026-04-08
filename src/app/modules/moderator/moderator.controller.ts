@@ -4,6 +4,8 @@ import httpStatus from 'http-status';
 import catchAsync from '../../../shared/catchAsync';
 import { fileUploader } from '../../../helpers/fileUploader';
 import { ModeratorService } from './moderator.service';
+import pick from '../../../shared/pick';
+import { moderatorFilterableFields } from './moderator.constant';
 
 const createModerator: RequestHandler = catchAsync(async (req: Request, res: Response) => {
     let profilePhotoUrl: string | null = null;
@@ -28,6 +30,22 @@ const createModerator: RequestHandler = catchAsync(async (req: Request, res: Res
     });
 });
 
+const getAllFromDB: RequestHandler = catchAsync(async (req: Request, res: Response) => {
+    const filters = pick(req.query, moderatorFilterableFields);
+    const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+
+    const result = await ModeratorService.getAllFromDB(filters, options);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Moderators fetched successfully!",
+        meta: result.meta,
+        data: result.data
+    });
+});
+
 export const ModeratorController = {
     createModerator,
+    getAllFromDB,
 };

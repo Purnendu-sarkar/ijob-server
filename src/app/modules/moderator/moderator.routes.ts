@@ -42,4 +42,10 @@ router.patch(
     ModeratorController.updateIntoDB
 );
 
+router.delete(
+    '/soft/:id',
+    auth(UserRole.ADMIN),
+    ModeratorController.softDeleteFromDB
+);
+
 export const ModeratorRoutes = router;

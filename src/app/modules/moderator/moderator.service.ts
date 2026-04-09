@@ -257,6 +257,19 @@ const updateIntoDB = async (id: string, payload: any) => {
     });
 };
 
+const softDeleteFromDB = async (id: string) => {
+    const moderator = await prisma.moderatorProfile.findFirstOrThrow({
+        where: { id, user: { status: { not: UserStatus.DELETED } } },
+    });
+
+    await prisma.user.update({
+        where: { id: moderator.userId },
+        data: { status: UserStatus.DELETED },
+    });
+
+    return { message: "Moderator soft deleted successfully", id };
+};
+
 
 
 export const ModeratorService = {
@@ -264,4 +277,5 @@ export const ModeratorService = {
     getAllFromDB,
     getByIdFromDB,
     updateIntoDB,
+    softDeleteFromDB,
 };

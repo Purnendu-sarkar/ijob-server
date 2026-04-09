@@ -68,10 +68,23 @@ const updateIntoDB = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const softDeleteFromDB = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await ModeratorService.softDeleteFromDB(id as string);
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Moderator soft deleted successfully!",
+        data: result
+    });
+});
+
+
 
 export const ModeratorController = {
     createModerator,
     getAllFromDB,
     getByIdFromDB,
     updateIntoDB,
+    softDeleteFromDB,
 };

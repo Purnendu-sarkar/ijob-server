@@ -35,4 +35,11 @@ router.post(
     ModeratorController.createModerator
 );
 
+router.patch(
+    '/:id',
+    auth(UserRole.ADMIN),
+    validateRequest(moderatorValidationSchemas.updateModerator),
+    ModeratorController.updateIntoDB
+);
+
 export const ModeratorRoutes = router;

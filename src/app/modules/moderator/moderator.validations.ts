@@ -16,6 +16,16 @@ const createModerator = z.object({
     }),
 });
 
+const updateModerator = z.object({
+    body: z.object({
+        name: z.string().min(2).max(100).optional(),
+        phone: z.string().regex(/^(01[3-9]\d{8})$/).optional(),
+        bio: z.string().max(500).optional(),
+        assignedRegions: z.array(z.string()).optional(),
+    }),
+});
+
 export const moderatorValidationSchemas = {
     createModerator,
+    updateModerator,
 };

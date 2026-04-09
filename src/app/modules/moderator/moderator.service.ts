@@ -212,10 +212,56 @@ const getByIdFromDB = async (id: string) => {
     return result;
 };
 
+const updateIntoDB = async (id: string, payload: any) => {
+    await prisma.moderatorProfile.findFirstOrThrow({
+        where: { id, user: { status: { not: UserStatus.DELETED } } },
+    });
+
+    const updateData: Prisma.ModeratorProfileUpdateInput = {
+        bio: payload.bio,
+        assignedRegions: payload.assignedRegions,
+        user: {
+            update: {
+                ...(payload.name && { fullName: payload.name }),
+                ...(payload.phone && { phone: payload.phone }),
+            },
+        },
+    };
+
+    return prisma.moderatorProfile.update({
+        where: { id },
+        data: updateData,
+        select: {
+            id: true,
+            userId: true,
+            bio: true,
+            assignedRegions: true,
+            createdAt: true,
+            updatedAt: true,
+            user: {
+                select: {
+                    id: true,
+                    email: true,
+                    phone: true,
+                    fullName: true,
+                    profilePhotoUrl: true,
+                    role: true,
+                    status: true,
+                    needPasswordChange: true,
+                    lastLoginAt: true,
+                    createdAt: true,
+                    updatedAt: true,
+                },
+            },
+        },
+    });
+};
+
 
 
 export const ModeratorService = {
     createModerator,
     getAllFromDB,
     getByIdFromDB,
+    updateIntoDB,
 };

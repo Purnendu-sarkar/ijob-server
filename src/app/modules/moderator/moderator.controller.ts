@@ -79,6 +79,16 @@ const softDeleteFromDB = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const deleteFromDB = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await ModeratorService.deleteFromDB(id as string);
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Moderator permanently deleted!",
+        data: result
+    });
+});
 
 
 export const ModeratorController = {
@@ -87,4 +97,5 @@ export const ModeratorController = {
     getByIdFromDB,
     updateIntoDB,
     softDeleteFromDB,
+    deleteFromDB
 };

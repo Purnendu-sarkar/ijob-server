@@ -270,6 +270,16 @@ const softDeleteFromDB = async (id: string) => {
     return { message: "Moderator soft deleted successfully", id };
 };
 
+const deleteFromDB = async (id: string) => {
+    const moderator = await prisma.moderatorProfile.findUniqueOrThrow({ where: { id } });
+
+    await prisma.$transaction([
+        prisma.moderatorProfile.delete({ where: { id } }),
+        prisma.user.delete({ where: { id: moderator.userId } }),
+    ]);
+
+    return { message: "Moderator permanently deleted", id };
+};
 
 
 export const ModeratorService = {
@@ -278,4 +288,5 @@ export const ModeratorService = {
     getByIdFromDB,
     updateIntoDB,
     softDeleteFromDB,
+    deleteFromDB
 };

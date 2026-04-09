@@ -48,4 +48,10 @@ router.delete(
     ModeratorController.softDeleteFromDB
 );
 
+router.delete(
+    '/:id',
+    auth(UserRole.ADMIN),
+    ModeratorController.deleteFromDB
+);
+
 export const ModeratorRoutes = router;

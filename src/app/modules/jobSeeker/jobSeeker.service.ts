@@ -137,28 +137,42 @@ const getByIdFromDB = async (id: string) => {
 };
 
 const updateIntoDB = async (id: string, payload: any) => {
-    await prisma.jobSeekerProfile.findFirstOrThrow({
+    const existingProfile = await prisma.jobSeekerProfile.findFirstOrThrow({
         where: { id, user: { status: { not: UserStatus.DELETED } } },
-    });
-
-    return prisma.jobSeekerProfile.update({
-        where: { id },
-        data: {
-            fullName: payload.fullName,
-            dateOfBirth: payload.dateOfBirth ? new Date(payload.dateOfBirth) : undefined,
-            gender: payload.gender,
-            currentLocationId: payload.currentLocationId,
-            expectedSalaryMin: payload.expectedSalaryMin,
-            expectedSalaryMax: payload.expectedSalaryMax,
-            experienceYears: payload.experienceYears,
-            about: payload.about,
-            preferredJobTypes: payload.preferredJobTypes,
-            preferredLocations: payload.preferredLocations,
-            isProfileVerified: payload.isProfileVerified,
-        },
         include: {
             user: true,
         },
+    });
+
+    return prisma.$transaction(async (tx) => {
+        const updatedProfile = await tx.jobSeekerProfile.update({
+            where: { id },
+            data: {
+                fullName: payload.fullName,
+                dateOfBirth: payload.dateOfBirth ? new Date(payload.dateOfBirth) : undefined,
+                gender: payload.gender,
+                currentLocationId: payload.currentLocationId,
+                expectedSalaryMin: payload.expectedSalaryMin,
+                expectedSalaryMax: payload.expectedSalaryMax,
+                experienceYears: payload.experienceYears,
+                about: payload.about,
+                preferredJobTypes: payload.preferredJobTypes,
+                preferredLocations: payload.preferredLocations,
+                isProfileVerified: payload.isProfileVerified,
+            },
+            include: {
+                user: true,
+            },
+        });
+
+        if (typeof payload.fullName === "string" && payload.fullName.trim()) {
+            await tx.user.update({
+                where: { id: existingProfile.userId },
+                data: { fullName: payload.fullName.trim() },
+            });
+        }
+
+        return updatedProfile;
     });
 };
 

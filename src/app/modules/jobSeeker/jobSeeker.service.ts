@@ -70,12 +70,23 @@ const getAllFromDB = async (params: IJobSeekerFilterRequest, options: IPaginatio
     });
 
     const whereConditions: Prisma.JobSeekerProfileWhereInput = { AND: andConditions };
+    const sortBy = options.sortBy || "createdAt";
+    const sortOrder = (options.sortOrder || "desc") as Prisma.SortOrder;
+
+    const orderBy =
+        sortBy === "name"
+            ? { fullName: sortOrder }
+            : sortBy === "email"
+                ? { user: { email: sortOrder } }
+                : sortBy === "phone"
+                    ? { user: { phone: sortOrder } }
+                    : { [sortBy]: sortOrder };
 
     const result = await prisma.jobSeekerProfile.findMany({
         where: whereConditions,
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy,
         include: {
             user: {
                 select: {

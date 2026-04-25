@@ -9,6 +9,26 @@ const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
 const http_status_1 = __importDefault(require("http-status"));
 const user_service_1 = require("./user.service");
 const fileUploader_1 = require("../../../helpers/fileUploader");
+const createAdmin = (0, catchAsync_1.default)(async (req, res) => {
+    let profilePhotoUrl = null;
+    // File upload to Cloudinary
+    if (req.file) {
+        const uploaded = await fileUploader_1.fileUploader.uploadToCloudinary(req.file);
+        profilePhotoUrl = uploaded?.secure_url || null;
+    }
+    // Merge file URL with body
+    const payload = {
+        ...req.body,
+        profilePhotoUrl,
+    };
+    const result = await user_service_1.userService.createAdmin(payload);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.CREATED,
+        success: true,
+        message: "Admin created successfully",
+        data: result,
+    });
+});
 const createJobSeeker = (0, catchAsync_1.default)(async (req, res) => {
     console.log("DATA", req.body);
     // ── File upload ───────────────────────────────────────
@@ -51,4 +71,5 @@ const createEmployer = (0, catchAsync_1.default)(async (req, res) => {
 exports.userController = {
     createJobSeeker,
     createEmployer,
+    createAdmin,
 };

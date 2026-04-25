@@ -3,6 +3,7 @@ import { userRoutes } from '../modules/user/user.routes';
 import { AuthRoutes } from '../modules/auth/auth.routes';
 import { AdminRoutes } from '../modules/admin/admin.routes';
 import { ModeratorRoutes } from '../modules/moderator/moderator.routes';
+import { JobSeekerRoutes } from '../modules/jobSeeker/jobSeeker.routes';
 
 
 const router = express.Router();
@@ -19,6 +20,10 @@ const moduleRoutes = [
     {
         path: '/moderators',
         route: ModeratorRoutes
+    },
+    {
+        path: '/job-seekers',
+        route: JobSeekerRoutes
     },
     {
         path: '/auth',

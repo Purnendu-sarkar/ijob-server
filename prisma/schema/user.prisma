@@ -55,6 +55,7 @@ model JobSeekerProfile {
     preferredLocations String[]
 
     profileCompletion Int?     @default(0)
+    isProfileVerified     Boolean    @default(false)
     createdAt         DateTime @default(now())
     updatedAt         DateTime @updatedAt
 

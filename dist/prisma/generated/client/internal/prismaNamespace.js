@@ -180,6 +180,7 @@ exports.JobSeekerProfileScalarFieldEnum = {
     preferredJobTypes: 'preferredJobTypes',
     preferredLocations: 'preferredLocations',
     profileCompletion: 'profileCompletion',
+    isProfileVerified: 'isProfileVerified',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };

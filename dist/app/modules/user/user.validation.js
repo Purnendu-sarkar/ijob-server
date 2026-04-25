@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userValidation = exports.createEmployerValidationSchema = exports.createJobSeekerValidationSchema = void 0;
+exports.userValidation = exports.createEmployerValidationSchema = exports.createJobSeekerValidationSchema = exports.createAdminValidationSchema = void 0;
 const zod_1 = require("zod");
 // ── Common parts ───────────────────────────────────────
 const passwordSchema = zod_1.z
@@ -17,6 +17,22 @@ const phoneSchema = zod_1.z
     .regex(/^(01[3-9]\d{8})$/, { message: "Invalid Bangladeshi phone number (01XXXXXXXXX)" })
     .optional();
 const fullNameSchema = zod_1.z.string().min(2).max(100).optional();
+// ── Admin Creation ─────────────────────────────────────
+exports.createAdminValidationSchema = zod_1.z.object({
+    body: zod_1.z.object({
+        password: passwordSchema,
+        admin: zod_1.z.object({
+            name: zod_1.z.string().min(2, "Name must be at least 2 characters").max(100),
+            email: emailSchema,
+            phone: zod_1.z
+                .string()
+                .regex(/^(01[3-9]\d{8})$/, "Invalid Bangladeshi phone number")
+                .optional(),
+            department: zod_1.z.string().max(100).optional(),
+            // permissions: z.record(z.boolean()).optional(),
+        }),
+    }),
+});
 // ── Job Seeker ─────────────────────────────────────────
 exports.createJobSeekerValidationSchema = zod_1.z.object({
     body: zod_1.z.object({
@@ -73,4 +89,5 @@ exports.createEmployerValidationSchema = zod_1.z.object({
 exports.userValidation = {
     createJobSeeker: exports.createJobSeekerValidationSchema,
     createEmployer: exports.createEmployerValidationSchema,
+    createAdmin: exports.createAdminValidationSchema,
 };

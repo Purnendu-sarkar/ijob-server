@@ -9,7 +9,16 @@ const user_controller_1 = require("./user.controller");
 const fileUploader_1 = require("../../../helpers/fileUploader");
 const validateRequest_1 = __importDefault(require("../../middlewares/validateRequest"));
 const user_validation_1 = require("./user.validation");
+const auth_1 = __importDefault(require("../../middlewares/auth"));
+const enums_1 = require("../../../prisma/generated/client/enums");
 const router = express_1.default.Router();
+router.post("/create-admin", (0, auth_1.default)(enums_1.UserRole.ADMIN), fileUploader_1.fileUploader.upload.single("file"), (req, res, next) => {
+    // Parse JSON string if sent as form-data
+    if (req.body.data) {
+        req.body = JSON.parse(req.body.data);
+    }
+    next();
+}, (0, validateRequest_1.default)(user_validation_1.userValidation.createAdmin), user_controller_1.userController.createAdmin);
 // Public registration endpoints
 router.post("/register/job-seeker", fileUploader_1.fileUploader.upload.single("file"), (req, res, next) => {
     // Parse JSON string if sent as form-data

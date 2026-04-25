@@ -52,6 +52,7 @@ export type JobSeekerProfileMinAggregateOutputType = {
   experienceYears: number | null
   about: string | null
   profileCompletion: number | null
+  isProfileVerified: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -68,6 +69,7 @@ export type JobSeekerProfileMaxAggregateOutputType = {
   experienceYears: number | null
   about: string | null
   profileCompletion: number | null
+  isProfileVerified: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -86,6 +88,7 @@ export type JobSeekerProfileCountAggregateOutputType = {
   preferredJobTypes: number
   preferredLocations: number
   profileCompletion: number
+  isProfileVerified: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -118,6 +121,7 @@ export type JobSeekerProfileMinAggregateInputType = {
   experienceYears?: true
   about?: true
   profileCompletion?: true
+  isProfileVerified?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -134,6 +138,7 @@ export type JobSeekerProfileMaxAggregateInputType = {
   experienceYears?: true
   about?: true
   profileCompletion?: true
+  isProfileVerified?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -152,6 +157,7 @@ export type JobSeekerProfileCountAggregateInputType = {
   preferredJobTypes?: true
   preferredLocations?: true
   profileCompletion?: true
+  isProfileVerified?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -257,6 +263,7 @@ export type JobSeekerProfileGroupByOutputType = {
   preferredJobTypes: $Enums.JobType[]
   preferredLocations: string[]
   profileCompletion: number | null
+  isProfileVerified: boolean
   createdAt: Date
   updatedAt: Date
   _count: JobSeekerProfileCountAggregateOutputType | null
@@ -298,6 +305,7 @@ export type JobSeekerProfileWhereInput = {
   preferredJobTypes?: Prisma.EnumJobTypeNullableListFilter<"JobSeekerProfile">
   preferredLocations?: Prisma.StringNullableListFilter<"JobSeekerProfile">
   profileCompletion?: Prisma.IntNullableFilter<"JobSeekerProfile"> | number | null
+  isProfileVerified?: Prisma.BoolFilter<"JobSeekerProfile"> | boolean
   createdAt?: Prisma.DateTimeFilter<"JobSeekerProfile"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"JobSeekerProfile"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -317,6 +325,7 @@ export type JobSeekerProfileOrderByWithRelationInput = {
   preferredJobTypes?: Prisma.SortOrder
   preferredLocations?: Prisma.SortOrder
   profileCompletion?: Prisma.SortOrderInput | Prisma.SortOrder
+  isProfileVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -339,6 +348,7 @@ export type JobSeekerProfileWhereUniqueInput = Prisma.AtLeast<{
   preferredJobTypes?: Prisma.EnumJobTypeNullableListFilter<"JobSeekerProfile">
   preferredLocations?: Prisma.StringNullableListFilter<"JobSeekerProfile">
   profileCompletion?: Prisma.IntNullableFilter<"JobSeekerProfile"> | number | null
+  isProfileVerified?: Prisma.BoolFilter<"JobSeekerProfile"> | boolean
   createdAt?: Prisma.DateTimeFilter<"JobSeekerProfile"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"JobSeekerProfile"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -358,6 +368,7 @@ export type JobSeekerProfileOrderByWithAggregationInput = {
   preferredJobTypes?: Prisma.SortOrder
   preferredLocations?: Prisma.SortOrder
   profileCompletion?: Prisma.SortOrderInput | Prisma.SortOrder
+  isProfileVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.JobSeekerProfileCountOrderByAggregateInput
@@ -384,6 +395,7 @@ export type JobSeekerProfileScalarWhereWithAggregatesInput = {
   preferredJobTypes?: Prisma.EnumJobTypeNullableListFilter<"JobSeekerProfile">
   preferredLocations?: Prisma.StringNullableListFilter<"JobSeekerProfile">
   profileCompletion?: Prisma.IntNullableWithAggregatesFilter<"JobSeekerProfile"> | number | null
+  isProfileVerified?: Prisma.BoolWithAggregatesFilter<"JobSeekerProfile"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"JobSeekerProfile"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"JobSeekerProfile"> | Date | string
 }
@@ -401,6 +413,7 @@ export type JobSeekerProfileCreateInput = {
   preferredJobTypes?: Prisma.JobSeekerProfileCreatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileCreatepreferredLocationsInput | string[]
   profileCompletion?: number | null
+  isProfileVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutJobSeekerProfileInput
@@ -420,6 +433,7 @@ export type JobSeekerProfileUncheckedCreateInput = {
   preferredJobTypes?: Prisma.JobSeekerProfileCreatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileCreatepreferredLocationsInput | string[]
   profileCompletion?: number | null
+  isProfileVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -437,6 +451,7 @@ export type JobSeekerProfileUpdateInput = {
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileUpdatepreferredLocationsInput | string[]
   profileCompletion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isProfileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutJobSeekerProfileNestedInput
@@ -456,6 +471,7 @@ export type JobSeekerProfileUncheckedUpdateInput = {
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileUpdatepreferredLocationsInput | string[]
   profileCompletion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isProfileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -474,6 +490,7 @@ export type JobSeekerProfileCreateManyInput = {
   preferredJobTypes?: Prisma.JobSeekerProfileCreatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileCreatepreferredLocationsInput | string[]
   profileCompletion?: number | null
+  isProfileVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -491,6 +508,7 @@ export type JobSeekerProfileUpdateManyMutationInput = {
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileUpdatepreferredLocationsInput | string[]
   profileCompletion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isProfileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -509,6 +527,7 @@ export type JobSeekerProfileUncheckedUpdateManyInput = {
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileUpdatepreferredLocationsInput | string[]
   profileCompletion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isProfileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -548,6 +567,7 @@ export type JobSeekerProfileCountOrderByAggregateInput = {
   preferredJobTypes?: Prisma.SortOrder
   preferredLocations?: Prisma.SortOrder
   profileCompletion?: Prisma.SortOrder
+  isProfileVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -571,6 +591,7 @@ export type JobSeekerProfileMaxOrderByAggregateInput = {
   experienceYears?: Prisma.SortOrder
   about?: Prisma.SortOrder
   profileCompletion?: Prisma.SortOrder
+  isProfileVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -587,6 +608,7 @@ export type JobSeekerProfileMinOrderByAggregateInput = {
   experienceYears?: Prisma.SortOrder
   about?: Prisma.SortOrder
   profileCompletion?: Prisma.SortOrder
+  isProfileVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -665,6 +687,7 @@ export type JobSeekerProfileCreateWithoutUserInput = {
   preferredJobTypes?: Prisma.JobSeekerProfileCreatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileCreatepreferredLocationsInput | string[]
   profileCompletion?: number | null
+  isProfileVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -682,6 +705,7 @@ export type JobSeekerProfileUncheckedCreateWithoutUserInput = {
   preferredJobTypes?: Prisma.JobSeekerProfileCreatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileCreatepreferredLocationsInput | string[]
   profileCompletion?: number | null
+  isProfileVerified?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -715,6 +739,7 @@ export type JobSeekerProfileUpdateWithoutUserInput = {
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileUpdatepreferredLocationsInput | string[]
   profileCompletion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isProfileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -732,6 +757,7 @@ export type JobSeekerProfileUncheckedUpdateWithoutUserInput = {
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileUpdatepreferredLocationsInput | string[]
   profileCompletion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isProfileVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -752,6 +778,7 @@ export type JobSeekerProfileSelect<ExtArgs extends runtime.Types.Extensions.Inte
   preferredJobTypes?: boolean
   preferredLocations?: boolean
   profileCompletion?: boolean
+  isProfileVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -771,6 +798,7 @@ export type JobSeekerProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   preferredJobTypes?: boolean
   preferredLocations?: boolean
   profileCompletion?: boolean
+  isProfileVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -790,6 +818,7 @@ export type JobSeekerProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   preferredJobTypes?: boolean
   preferredLocations?: boolean
   profileCompletion?: boolean
+  isProfileVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -809,11 +838,12 @@ export type JobSeekerProfileSelectScalar = {
   preferredJobTypes?: boolean
   preferredLocations?: boolean
   profileCompletion?: boolean
+  isProfileVerified?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type JobSeekerProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "fullName" | "dateOfBirth" | "gender" | "currentLocationId" | "expectedSalaryMin" | "expectedSalaryMax" | "experienceYears" | "about" | "preferredJobTypes" | "preferredLocations" | "profileCompletion" | "createdAt" | "updatedAt", ExtArgs["result"]["jobSeekerProfile"]>
+export type JobSeekerProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "fullName" | "dateOfBirth" | "gender" | "currentLocationId" | "expectedSalaryMin" | "expectedSalaryMax" | "experienceYears" | "about" | "preferredJobTypes" | "preferredLocations" | "profileCompletion" | "isProfileVerified" | "createdAt" | "updatedAt", ExtArgs["result"]["jobSeekerProfile"]>
 export type JobSeekerProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -843,6 +873,7 @@ export type $JobSeekerProfilePayload<ExtArgs extends runtime.Types.Extensions.In
     preferredJobTypes: $Enums.JobType[]
     preferredLocations: string[]
     profileCompletion: number | null
+    isProfileVerified: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["jobSeekerProfile"]>
@@ -1282,6 +1313,7 @@ export interface JobSeekerProfileFieldRefs {
   readonly preferredJobTypes: Prisma.FieldRef<"JobSeekerProfile", 'JobType[]'>
   readonly preferredLocations: Prisma.FieldRef<"JobSeekerProfile", 'String[]'>
   readonly profileCompletion: Prisma.FieldRef<"JobSeekerProfile", 'Int'>
+  readonly isProfileVerified: Prisma.FieldRef<"JobSeekerProfile", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"JobSeekerProfile", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"JobSeekerProfile", 'DateTime'>
 }

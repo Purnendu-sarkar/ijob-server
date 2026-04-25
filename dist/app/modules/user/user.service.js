@@ -42,6 +42,54 @@ const client_1 = require("../../../prisma/generated/client/client");
 const prisma_1 = require("../../../lib/prisma");
 const config_1 = __importDefault(require("../../../config"));
 const slugify_1 = __importDefault(require("slugify"));
+const createAdmin = async (payload) => {
+    const { password, admin, profilePhotoUrl } = payload;
+    const hashedPassword = await bcrypt.hash(password, Number(config_1.default.salt_rounds));
+    // ✅ Timeout  (30 seconds)
+    return prisma_1.prisma.$transaction(async (tx) => {
+        const user = await tx.user.create({
+            data: {
+                email: admin.email,
+                phone: admin.phone || null,
+                passwordHash: hashedPassword,
+                role: client_1.UserRole.ADMIN,
+                fullName: admin.name,
+                profilePhotoUrl: profilePhotoUrl || null,
+                needPasswordChange: false,
+                status: client_1.UserStatus.ACTIVE,
+            },
+        });
+        const adminProfile = await tx.adminProfile.create({
+            data: {
+                userId: user.id,
+                department: admin.department || null,
+                permissions: admin.permissions || null,
+            },
+        });
+        return {
+            id: adminProfile.id,
+            userId: user.id,
+            fullName: user.fullName,
+            email: user.email,
+            phone: user.phone,
+            profilePhoto: user.profilePhotoUrl,
+            department: adminProfile.department,
+            createdAt: user.createdAt,
+            user: {
+                id: user.id,
+                email: user.email,
+                phone: user.phone,
+                fullName: user.fullName,
+                profilePhotoUrl: user.profilePhotoUrl,
+                role: user.role,
+                status: user.status,
+            },
+        };
+    }, {
+        maxWait: 20000,
+        timeout: 30000,
+    });
+};
 const createJobSeeker = async (payload) => {
     const { password, dateOfBirth, preferredJobTypes = [], preferredLocations = [], ...rest } = payload;
     const hashedPassword = await bcrypt.hash(password, Number(config_1.default.salt_rounds));
@@ -158,4 +206,5 @@ const createEmployer = async (payload) => {
 exports.userService = {
     createJobSeeker,
     createEmployer,
+    createAdmin,
 };

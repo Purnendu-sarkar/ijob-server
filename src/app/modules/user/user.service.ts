@@ -4,6 +4,11 @@ import { prisma } from '../../../lib/prisma';
 import config from '../../../config';
 import slugify from 'slugify';
 
+const transactionOptions = {
+  maxWait: 20000,
+  timeout: 30000,
+};
+
 
 const createAdmin = async (payload: any) => {
   const { password, admin, profilePhotoUrl } = payload;
@@ -112,7 +117,7 @@ const createJobSeeker = async (payload: any) => {
       fullName: user.fullName,
       createdAt: user.createdAt,
     };
-  });
+  }, transactionOptions);
 };
 
 const createEmployer = async (payload: any) => {
@@ -202,7 +207,7 @@ const createEmployer = async (payload: any) => {
       },
       createdAt: user.createdAt,
     };
-  });
+  }, transactionOptions);
 };
 
 export const userService = {

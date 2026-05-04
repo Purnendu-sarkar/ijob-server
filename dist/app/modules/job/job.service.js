@@ -7,8 +7,10 @@ exports.JobService = void 0;
 const slugify_1 = __importDefault(require("slugify"));
 const http_status_1 = __importDefault(require("http-status"));
 const prisma_1 = require("../../../lib/prisma");
+const paginationHelper_1 = require("../../../helpers/paginationHelper");
 const ApiError_1 = __importDefault(require("../../errors/ApiError"));
 const client_1 = require("../../../prisma/generated/client/client");
+const job_constant_1 = require("./job.constant");
 const createJobIntoDB = async (userFromRequest, payload) => {
     if (!userFromRequest?.userId) {
         throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, "Authentication required!");
@@ -66,21 +68,132 @@ const createJobIntoDB = async (userFromRequest, payload) => {
     });
     return job;
 };
-const getAllFromDB = async () => {
-    const jobs = await prisma_1.prisma.job.findMany({
-        orderBy: { createdAt: "desc" },
-        include: {
+const parseNumber = (value) => {
+    if (value === undefined || value === null || value === "")
+        return undefined;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+};
+const publicJobSelect = {
+    id: true,
+    companyId: true,
+    title: true,
+    slug: true,
+    description: true,
+    employmentType: true,
+    workplaceType: true,
+    experienceMin: true,
+    experienceMax: true,
+    salaryMin: true,
+    salaryMax: true,
+    currency: true,
+    vacancies: true,
+    applicationDeadline: true,
+    status: true,
+    createdAt: true,
+    updatedAt: true,
+    publishedAt: true,
+    company: {
+        select: {
+            id: true,
+            name: true,
+            slug: true,
+            logoUrl: true,
+            verificationStatus: true,
+        },
+    },
+};
+const buildJobOrderBy = (options) => {
+    const sortBy = options.sortBy || "publishedAt";
+    const sortOrder = options.sortOrder === "asc" ? "asc" : "desc";
+    if (!job_constant_1.jobSortableFields.includes(sortBy)) {
+        return { publishedAt: "desc" };
+    }
+    return { [sortBy]: sortOrder };
+};
+const getAllFromDB = async (params, options) => {
+    const { page, limit, skip } = paginationHelper_1.paginationHelper.calculatePagination(options);
+    const andConditions = [
+        {
+            status: client_1.JobStatus.PUBLISHED,
             company: {
-                select: {
-                    id: true,
-                    name: true,
-                    slug: true,
-                    verificationStatus: true,
-                },
+                verificationStatus: client_1.VerificationStatus.VERIFIED,
             },
         },
+    ];
+    const id = typeof params.id === "string" ? params.id.trim() : "";
+    if (id) {
+        andConditions.push({
+            OR: [
+                { title: { contains: id, mode: "insensitive" } },
+                { description: { contains: id, mode: "insensitive" } },
+                { company: { name: { contains: id, mode: "insensitive" } } },
+            ],
+        });
+    }
+    if (typeof params.companyId === "string" && params.companyId.trim()) {
+        andConditions.push({ companyId: params.companyId.trim() });
+    }
+    if (typeof params.companyName === "string" && params.companyName.trim()) {
+        andConditions.push({
+            company: {
+                name: { contains: params.companyName.trim(), mode: "insensitive" },
+            },
+        });
+    }
+    if (typeof params.employmentType === "string" && params.employmentType.trim()) {
+        andConditions.push({
+            employmentType: { equals: params.employmentType.trim(), mode: "insensitive" },
+        });
+    }
+    if (typeof params.workplaceType === "string" && params.workplaceType.trim()) {
+        andConditions.push({
+            workplaceType: { equals: params.workplaceType.trim(), mode: "insensitive" },
+        });
+    }
+    const experienceMin = parseNumber(params.experienceMin);
+    const experienceMax = parseNumber(params.experienceMax);
+    const salaryMin = parseNumber(params.salaryMin);
+    const salaryMax = parseNumber(params.salaryMax);
+    const postedWithin = parseNumber(params.postedWithin);
+    if (typeof experienceMin === "number") {
+        andConditions.push({
+            OR: [{ experienceMax: { gte: experienceMin } }, { experienceMax: null }],
+        });
+    }
+    if (typeof experienceMax === "number") {
+        andConditions.push({
+            OR: [{ experienceMin: { lte: experienceMax } }, { experienceMin: null }],
+        });
+    }
+    if (typeof salaryMin === "number") {
+        andConditions.push({
+            OR: [{ salaryMax: { gte: salaryMin } }, { salaryMax: null }],
+        });
+    }
+    if (typeof salaryMax === "number") {
+        andConditions.push({
+            OR: [{ salaryMin: { lte: salaryMax } }, { salaryMin: null }],
+        });
+    }
+    if (typeof postedWithin === "number" && postedWithin > 0) {
+        const fromDate = new Date();
+        fromDate.setDate(fromDate.getDate() - postedWithin);
+        andConditions.push({ publishedAt: { gte: fromDate } });
+    }
+    const whereConditions = { AND: andConditions };
+    const jobs = await prisma_1.prisma.job.findMany({
+        where: whereConditions,
+        skip,
+        take: limit,
+        orderBy: buildJobOrderBy(options),
+        select: publicJobSelect,
     });
-    return jobs;
+    const total = await prisma_1.prisma.job.count({ where: whereConditions });
+    return {
+        meta: { page, limit, total },
+        data: jobs,
+    };
 };
 exports.JobService = {
     createJobIntoDB,

@@ -42,6 +42,10 @@ const client_1 = require("../../../prisma/generated/client/client");
 const prisma_1 = require("../../../lib/prisma");
 const config_1 = __importDefault(require("../../../config"));
 const slugify_1 = __importDefault(require("slugify"));
+const transactionOptions = {
+    maxWait: 20000,
+    timeout: 30000,
+};
 const createAdmin = async (payload) => {
     const { password, admin, profilePhotoUrl } = payload;
     const hashedPassword = await bcrypt.hash(password, Number(config_1.default.salt_rounds));
@@ -130,7 +134,7 @@ const createJobSeeker = async (payload) => {
             fullName: user.fullName,
             createdAt: user.createdAt,
         };
-    });
+    }, transactionOptions);
 };
 const createEmployer = async (payload) => {
     const { password, companyName, companyWebsite, companyDescription, designation, logoUrl, ...rest } = payload;
@@ -201,7 +205,7 @@ const createEmployer = async (payload) => {
             },
             createdAt: user.createdAt,
         };
-    });
+    }, transactionOptions);
 };
 exports.userService = {
     createJobSeeker,

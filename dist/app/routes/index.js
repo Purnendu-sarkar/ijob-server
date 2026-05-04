@@ -9,6 +9,8 @@ const auth_routes_1 = require("../modules/auth/auth.routes");
 const admin_routes_1 = require("../modules/admin/admin.routes");
 const moderator_routes_1 = require("../modules/moderator/moderator.routes");
 const jobSeeker_routes_1 = require("../modules/jobSeeker/jobSeeker.routes");
+const employer_routes_1 = require("../modules/employer/employer.routes");
+const job_routes_1 = require("../modules/job/job.routes");
 const router = express_1.default.Router();
 const moduleRoutes = [
     {
@@ -26,6 +28,14 @@ const moduleRoutes = [
     {
         path: '/job-seekers',
         route: jobSeeker_routes_1.JobSeekerRoutes
+    },
+    {
+        path: '/employers',
+        route: employer_routes_1.EmployerRoutes
+    },
+    {
+        path: '/jobs',
+        route: job_routes_1.JobRoutes
     },
     {
         path: '/auth',

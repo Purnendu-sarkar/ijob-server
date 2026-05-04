@@ -5,6 +5,7 @@ import { AdminRoutes } from '../modules/admin/admin.routes';
 import { ModeratorRoutes } from '../modules/moderator/moderator.routes';
 import { JobSeekerRoutes } from '../modules/jobSeeker/jobSeeker.routes';
 import { EmployerRoutes } from '../modules/employer/employer.routes';
+import { JobRoutes } from '../modules/job/job.routes';
 
 
 const router = express.Router();
@@ -29,6 +30,10 @@ const moduleRoutes = [
     {
         path: '/employers',
         route: EmployerRoutes
+    },
+    {
+        path: '/jobs',
+        route: JobRoutes
     },
     {
         path: '/auth',

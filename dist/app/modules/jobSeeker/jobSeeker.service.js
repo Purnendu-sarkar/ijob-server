@@ -57,11 +57,20 @@ const getAllFromDB = async (params, options) => {
         user: { status: { not: enums_1.UserStatus.DELETED } },
     });
     const whereConditions = { AND: andConditions };
+    const sortBy = options.sortBy || "createdAt";
+    const sortOrder = (options.sortOrder || "desc");
+    const orderBy = sortBy === "name"
+        ? { fullName: sortOrder }
+        : sortBy === "email"
+            ? { user: { email: sortOrder } }
+            : sortBy === "phone"
+                ? { user: { phone: sortOrder } }
+                : { [sortBy]: sortOrder };
     const result = await prisma_1.prisma.jobSeekerProfile.findMany({
         where: whereConditions,
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy,
         include: {
             user: {
                 select: {
@@ -108,27 +117,39 @@ const getByIdFromDB = async (id) => {
     return result;
 };
 const updateIntoDB = async (id, payload) => {
-    await prisma_1.prisma.jobSeekerProfile.findFirstOrThrow({
+    const existingProfile = await prisma_1.prisma.jobSeekerProfile.findFirstOrThrow({
         where: { id, user: { status: { not: enums_1.UserStatus.DELETED } } },
-    });
-    return prisma_1.prisma.jobSeekerProfile.update({
-        where: { id },
-        data: {
-            fullName: payload.fullName,
-            dateOfBirth: payload.dateOfBirth ? new Date(payload.dateOfBirth) : undefined,
-            gender: payload.gender,
-            currentLocationId: payload.currentLocationId,
-            expectedSalaryMin: payload.expectedSalaryMin,
-            expectedSalaryMax: payload.expectedSalaryMax,
-            experienceYears: payload.experienceYears,
-            about: payload.about,
-            preferredJobTypes: payload.preferredJobTypes,
-            preferredLocations: payload.preferredLocations,
-            isProfileVerified: payload.isProfileVerified,
-        },
         include: {
             user: true,
         },
+    });
+    return prisma_1.prisma.$transaction(async (tx) => {
+        const updatedProfile = await tx.jobSeekerProfile.update({
+            where: { id },
+            data: {
+                fullName: payload.fullName,
+                dateOfBirth: payload.dateOfBirth ? new Date(payload.dateOfBirth) : undefined,
+                gender: payload.gender,
+                currentLocationId: payload.currentLocationId,
+                expectedSalaryMin: payload.expectedSalaryMin,
+                expectedSalaryMax: payload.expectedSalaryMax,
+                experienceYears: payload.experienceYears,
+                about: payload.about,
+                preferredJobTypes: payload.preferredJobTypes,
+                preferredLocations: payload.preferredLocations,
+                isProfileVerified: payload.isProfileVerified,
+            },
+            include: {
+                user: true,
+            },
+        });
+        if (typeof payload.fullName === "string" && payload.fullName.trim()) {
+            await tx.user.update({
+                where: { id: existingProfile.userId },
+                data: { fullName: payload.fullName.trim() },
+            });
+        }
+        return updatedProfile;
     });
 };
 const softDeleteFromDB = async (id) => {

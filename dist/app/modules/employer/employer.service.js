@@ -10,6 +10,14 @@ const paginationHelper_1 = require("../../../helpers/paginationHelper");
 const ApiError_1 = __importDefault(require("../../errors/ApiError"));
 const http_status_1 = __importDefault(require("http-status"));
 const client_1 = require("../../../prisma/generated/client/client");
+const requiredCompanyDocumentTypes = [
+    client_1.VerificationDocumentType.TRADE_LICENSE,
+    client_1.VerificationDocumentType.NID,
+];
+const hasRequiredCompanyDocuments = (documents) => {
+    const submittedTypes = new Set(documents.map((document) => document.documentType));
+    return requiredCompanyDocumentTypes.every((type) => submittedTypes.has(type));
+};
 const employerSelect = {
     id: true,
     userId: true,
@@ -163,7 +171,7 @@ const getByIdFromDB = async (id) => {
     }
     return result;
 };
-const updateIntoDB = async (id, payload) => {
+const updateIntoDB = async (id, payload, reviewerUserId) => {
     const existingEmployer = await prisma_1.prisma.employerProfile.findFirstOrThrow({
         where: { id, user: { status: { not: client_1.UserStatus.DELETED } } },
         select: {
@@ -237,13 +245,25 @@ const updateIntoDB = async (id, payload) => {
         if (typeof payload.tradeLicenseNumber === "string") {
             companyData.tradeLicenseNumber = payload.tradeLicenseNumber.trim() || null;
         }
-        if (payload.companyVerificationStatus === "PENDING" ||
+        const nextVerificationStatus = payload.companyVerificationStatus === "PENDING" ||
             payload.companyVerificationStatus === "VERIFIED" ||
-            payload.companyVerificationStatus === "REJECTED") {
-            companyData.verificationStatus = payload.companyVerificationStatus;
+            payload.companyVerificationStatus === "REJECTED"
+            ? payload.companyVerificationStatus
+            : null;
+        if (nextVerificationStatus) {
+            if (nextVerificationStatus === client_1.VerificationStatus.VERIFIED) {
+                const documents = await tx.verificationDocument.findMany({
+                    where: { companyId: existingEmployer.companyId },
+                    select: { documentType: true },
+                });
+                if (!hasRequiredCompanyDocuments(documents)) {
+                    throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Trade License and NID/Contact Person ID are required before verifying a company.");
+                }
+            }
+            companyData.verificationStatus = nextVerificationStatus;
             companyData.verificationReviewedAt = new Date();
             companyData.verificationRejectionReason =
-                payload.companyVerificationStatus === "REJECTED"
+                nextVerificationStatus === client_1.VerificationStatus.REJECTED
                     ? payload.verificationRejectionReason || "Verification rejected."
                     : null;
         }
@@ -251,6 +271,27 @@ const updateIntoDB = async (id, payload) => {
             await tx.company.update({
                 where: { id: existingEmployer.companyId },
                 data: companyData,
+            });
+        }
+        if (nextVerificationStatus) {
+            const documentData = nextVerificationStatus === client_1.VerificationStatus.PENDING
+                ? {
+                    status: client_1.VerificationStatus.PENDING,
+                    reviewedAt: null,
+                    reviewedByUserId: null,
+                    rejectionReason: null,
+                }
+                : {
+                    status: nextVerificationStatus,
+                    reviewedAt: new Date(),
+                    reviewedByUserId: reviewerUserId || null,
+                    rejectionReason: nextVerificationStatus === client_1.VerificationStatus.REJECTED
+                        ? payload.verificationRejectionReason || "Verification rejected."
+                        : null,
+                };
+            await tx.verificationDocument.updateMany({
+                where: { companyId: existingEmployer.companyId },
+                data: documentData,
             });
         }
         return tx.employerProfile.update({
@@ -389,11 +430,16 @@ const submitVerificationDocuments = async (userId, documents) => {
                 status: client_1.VerificationStatus.PENDING,
             })),
         });
+        const documentsAfterUpload = await tx.verificationDocument.findMany({
+            where: { companyId: employer.companyId },
+            select: { documentType: true },
+        });
+        const readyForReview = hasRequiredCompanyDocuments(documentsAfterUpload);
         await tx.company.update({
             where: { id: employer.companyId },
             data: {
                 verificationStatus: client_1.VerificationStatus.PENDING,
-                verificationSubmittedAt: new Date(),
+                verificationSubmittedAt: readyForReview ? new Date() : null,
                 verificationReviewedAt: null,
                 verificationRejectionReason: null,
             },

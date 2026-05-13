@@ -46,6 +46,9 @@ const config = {
         app_password: process.env.EMAIL_APP_PASSWORD,
         from_name: "iJob Bangladesh",
     },
+    verification: {
+        sms_webhook_url: process.env.SMS_PROVIDER_WEBHOOK_URL || null,
+    },
     // Cloudinary
     cloudinary: {
         cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

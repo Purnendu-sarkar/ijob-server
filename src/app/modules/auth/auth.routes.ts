@@ -2,12 +2,24 @@ import express from "express";
 import { AuthController } from "./auth.controller";
 import auth from "../../middlewares/auth";
 import { UserRole } from "../../../prisma/generated/client/client";
+import validateRequest from "../../middlewares/validateRequest";
+import { authValidation } from "./auth.validation";
 
 
 const router = express.Router();
 
 // Public routes (rate limited)
 router.post("/login", AuthController.loginUser);
+router.post(
+  "/verification/request",
+  validateRequest(authValidation.requestContactVerification),
+  AuthController.requestContactVerification
+);
+router.post(
+  "/verification/confirm",
+  validateRequest(authValidation.confirmContactVerification),
+  AuthController.confirmContactVerification
+);
 router.post("/refresh-token", AuthController.refreshToken);
 router.post('/forgot-password', AuthController.forgotPassword);
 router.post("/reset-password", AuthController.resetPassword);

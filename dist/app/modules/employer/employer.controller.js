@@ -79,7 +79,7 @@ const getByIdFromDB = (0, catchAsync_1.default)(async (req, res) => {
 });
 const updateIntoDB = (0, catchAsync_1.default)(async (req, res) => {
     const { id } = req.params;
-    const result = await employer_service_1.EmployerService.updateIntoDB(id, req.body);
+    const result = await employer_service_1.EmployerService.updateIntoDB(id, req.body, req.user?.userId);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,

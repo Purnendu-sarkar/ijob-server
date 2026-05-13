@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.userValidation = exports.createEmployerValidationSchema = exports.createJobSeekerValidationSchema = exports.createAdminValidationSchema = void 0;
 const zod_1 = require("zod");
 const emptyToUndefined = (value) => {
+    if (value === null || value === undefined)
+        return undefined;
     if (typeof value !== "string")
         return value;
     const trimmed = value.trim();

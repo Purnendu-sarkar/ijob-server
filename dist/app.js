@@ -41,6 +41,7 @@ app.get('/', (req, res) => {
     });
 });
 // Routes 
+app.use('/api/v1/auth/verification', (0, rateLimit_1.rateLimit)({ windowMs: 15 * 60 * 1000, limit: 10 }));
 app.use('/api/v1/auth', (0, rateLimit_1.rateLimit)({ windowMs: 15 * 60 * 1000, limit: 80 }));
 app.use('/api/v1/users/register', (0, rateLimit_1.rateLimit)({ windowMs: 15 * 60 * 1000, limit: 30 }));
 app.use('/api/v1', routes_1.default);

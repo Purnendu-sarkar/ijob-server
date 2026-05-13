@@ -68,6 +68,14 @@ const normalizeTextArray = (value) => {
     }
     return [];
 };
+const requiredCompanyDocumentTypes = [
+    client_1.VerificationDocumentType.TRADE_LICENSE,
+    client_1.VerificationDocumentType.NID,
+];
+const hasRequiredCompanyDocuments = (documents) => {
+    const submittedTypes = new Set(documents.map((document) => document.documentType));
+    return requiredCompanyDocumentTypes.every((type) => submittedTypes.has(type));
+};
 const calculateJobSeekerCompletion = (payload) => {
     const checks = [
         payload.fullName,
@@ -268,6 +276,7 @@ const createEmployer = async (payload) => {
         const verificationDocuments = Array.isArray(payload.verificationDocuments)
             ? payload.verificationDocuments
             : [];
+        const verificationReadyForReview = hasRequiredCompanyDocuments(verificationDocuments);
         const company = await tx.company.create({
             data: {
                 name: payload.companyName.trim(),
@@ -282,7 +291,7 @@ const createEmployer = async (payload) => {
                 contactPhone: phone,
                 tradeLicenseNumber: payload.tradeLicenseNumber || null,
                 verificationStatus: client_1.VerificationStatus.PENDING,
-                verificationSubmittedAt: verificationDocuments.length ? new Date() : null,
+                verificationSubmittedAt: verificationReadyForReview ? new Date() : null,
             },
         });
         await tx.employerProfile.create({
@@ -318,6 +327,7 @@ const createEmployer = async (payload) => {
                 status: company.verificationStatus,
             },
             verificationDocuments: verificationDocuments.length,
+            verificationReadyForReview,
             createdAt: user.createdAt,
         };
     }, transactionOptions);

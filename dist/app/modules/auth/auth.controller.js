@@ -36,6 +36,8 @@ const loginUser = (0, catchAsync_1.default)(async (req, res) => {
                 id: user.id,
                 email: user.email,
                 phone: user.phone,
+                emailVerifiedAt: user.emailVerifiedAt,
+                phoneVerifiedAt: user.phoneVerifiedAt,
                 role: user.role,
                 fullName: user.fullName,
                 needPasswordChange: user.needPasswordChange || false,
@@ -66,6 +68,26 @@ const refreshToken = (0, catchAsync_1.default)(async (req, res) => {
         success: true,
         message: "New access token generated.",
         data: null,
+    });
+});
+const requestContactVerification = (0, catchAsync_1.default)(async (req, res) => {
+    const result = await auth_service_1.AuthServices.requestContactVerification(req.body);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: result.alreadyVerified
+            ? "This contact is already verified."
+            : "Verification code sent.",
+        data: result,
+    });
+});
+const confirmContactVerification = (0, catchAsync_1.default)(async (req, res) => {
+    const result = await auth_service_1.AuthServices.confirmContactVerification(req.body);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Contact verified successfully.",
+        data: result,
     });
 });
 const changePassword = (0, catchAsync_1.default)(async (req, res) => {
@@ -124,6 +146,8 @@ const logout = (0, catchAsync_1.default)(async (req, res) => {
 exports.AuthController = {
     loginUser,
     refreshToken,
+    requestContactVerification,
+    confirmContactVerification,
     changePassword,
     forgotPassword,
     resetPassword,

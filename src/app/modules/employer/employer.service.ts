@@ -8,8 +8,21 @@ import httpStatus from "http-status";
 import {
   Prisma,
   UserStatus,
+  VerificationDocumentType,
   VerificationStatus,
 } from "../../../prisma/generated/client/client";
+
+const requiredCompanyDocumentTypes = [
+  VerificationDocumentType.TRADE_LICENSE,
+  VerificationDocumentType.NID,
+];
+
+const hasRequiredCompanyDocuments = (
+  documents: Array<{ documentType: VerificationDocumentType | string }>,
+) => {
+  const submittedTypes = new Set(documents.map((document) => document.documentType));
+  return requiredCompanyDocumentTypes.every((type) => submittedTypes.has(type));
+};
 
 const employerSelect = {
   id: true,
@@ -184,7 +197,7 @@ const getByIdFromDB = async (id: string) => {
   return result;
 };
 
-const updateIntoDB = async (id: string, payload: any) => {
+const updateIntoDB = async (id: string, payload: any, reviewerUserId?: string) => {
   const existingEmployer = await prisma.employerProfile.findFirstOrThrow({
     where: { id, user: { status: { not: UserStatus.DELETED } } },
     select: {
@@ -273,15 +286,32 @@ const updateIntoDB = async (id: string, payload: any) => {
       companyData.tradeLicenseNumber = payload.tradeLicenseNumber.trim() || null;
     }
 
-    if (
+    const nextVerificationStatus =
       payload.companyVerificationStatus === "PENDING" ||
       payload.companyVerificationStatus === "VERIFIED" ||
       payload.companyVerificationStatus === "REJECTED"
-    ) {
-      companyData.verificationStatus = payload.companyVerificationStatus as VerificationStatus;
+        ? (payload.companyVerificationStatus as VerificationStatus)
+        : null;
+
+    if (nextVerificationStatus) {
+      if (nextVerificationStatus === VerificationStatus.VERIFIED) {
+        const documents = await tx.verificationDocument.findMany({
+          where: { companyId: existingEmployer.companyId },
+          select: { documentType: true },
+        });
+
+        if (!hasRequiredCompanyDocuments(documents)) {
+          throw new ApiError(
+            httpStatus.BAD_REQUEST,
+            "Trade License and NID/Contact Person ID are required before verifying a company.",
+          );
+        }
+      }
+
+      companyData.verificationStatus = nextVerificationStatus;
       companyData.verificationReviewedAt = new Date();
       companyData.verificationRejectionReason =
-        payload.companyVerificationStatus === "REJECTED"
+        nextVerificationStatus === VerificationStatus.REJECTED
           ? payload.verificationRejectionReason || "Verification rejected."
           : null;
     }
@@ -290,6 +320,31 @@ const updateIntoDB = async (id: string, payload: any) => {
       await tx.company.update({
         where: { id: existingEmployer.companyId },
         data: companyData,
+      });
+    }
+
+    if (nextVerificationStatus) {
+      const documentData: Prisma.VerificationDocumentUpdateManyMutationInput =
+        nextVerificationStatus === VerificationStatus.PENDING
+          ? {
+              status: VerificationStatus.PENDING,
+              reviewedAt: null,
+              reviewedByUserId: null,
+              rejectionReason: null,
+            }
+          : {
+              status: nextVerificationStatus,
+              reviewedAt: new Date(),
+              reviewedByUserId: reviewerUserId || null,
+              rejectionReason:
+                nextVerificationStatus === VerificationStatus.REJECTED
+                  ? payload.verificationRejectionReason || "Verification rejected."
+                  : null,
+            };
+
+      await tx.verificationDocument.updateMany({
+        where: { companyId: existingEmployer.companyId },
+        data: documentData,
       });
     }
 
@@ -458,11 +513,17 @@ const submitVerificationDocuments = async (
       })),
     });
 
+    const documentsAfterUpload = await tx.verificationDocument.findMany({
+      where: { companyId: employer.companyId },
+      select: { documentType: true },
+    });
+    const readyForReview = hasRequiredCompanyDocuments(documentsAfterUpload);
+
     await tx.company.update({
       where: { id: employer.companyId },
       data: {
         verificationStatus: VerificationStatus.PENDING,
-        verificationSubmittedAt: new Date(),
+        verificationSubmittedAt: readyForReview ? new Date() : null,
         verificationReviewedAt: null,
         verificationRejectionReason: null,
       },

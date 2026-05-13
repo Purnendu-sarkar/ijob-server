@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthServices = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const crypto_1 = require("crypto");
 const http_status_1 = __importDefault(require("http-status"));
 const config_1 = __importDefault(require("../../../config"));
 const jwtHelpers_1 = require("../../../helpers/jwtHelpers");
@@ -14,6 +15,127 @@ const client_1 = require("../../../prisma/generated/client/client");
 const emailSender_1 = __importDefault(require("./emailSender"));
 const normalizePhone = (phone) => phone?.trim().replace(/^\+?88/, "") || null;
 const normalizeEmail = (email) => email?.trim().toLowerCase() || null;
+const phonePattern = /^(?:\+?88)?01[3-9]\d{8}$/;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const verificationCodeTtlMinutes = 10;
+const verificationMaxAttempts = 5;
+const maskEmail = (email) => {
+    const [name, domain] = email.split("@");
+    if (!name || !domain)
+        return email;
+    const visible = name.slice(0, 2);
+    return `${visible}${"*".repeat(Math.max(name.length - visible.length, 2))}@${domain}`;
+};
+const maskPhone = (phone) => `${phone.slice(0, 3)}*****${phone.slice(-3)}`;
+const resolveVerificationContact = (payload) => {
+    const rawIdentifier = String(payload.identifier || "").trim();
+    const isPhoneIdentifier = phonePattern.test(rawIdentifier);
+    const isEmailIdentifier = emailPattern.test(rawIdentifier);
+    if (!isPhoneIdentifier && !isEmailIdentifier) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Enter a valid email or Bangladeshi phone number.");
+    }
+    if (isEmailIdentifier) {
+        const email = normalizeEmail(rawIdentifier);
+        const channel = payload.channel || client_1.VerificationChannel.EMAIL;
+        if (channel !== client_1.VerificationChannel.EMAIL) {
+            throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Email verification must use the EMAIL channel.");
+        }
+        return {
+            email,
+            phone: null,
+            channel,
+            maskedIdentifier: maskEmail(email),
+        };
+    }
+    const phone = normalizePhone(rawIdentifier);
+    const channel = payload.channel || client_1.VerificationChannel.SMS;
+    if (channel === client_1.VerificationChannel.EMAIL) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Phone verification must use SMS or WHATSAPP.");
+    }
+    return {
+        email: null,
+        phone,
+        channel,
+        maskedIdentifier: maskPhone(phone),
+    };
+};
+const sendVerificationEmail = async (email, code) => {
+    await (0, emailSender_1.default)(email, `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+      </style>
+    </head>
+    <body style="margin:0;padding:0;background-color:#f4f7fa;font-family:'Inter', Arial, sans-serif;color:#1a202c;">
+      <table role="presentation" style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td align="center" style="padding:40px 20px;">
+            <table role="presentation" style="max-width:600px;width:100%;border-collapse:collapse;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.05);">
+              <tr>
+                <td style="padding:40px;background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);text-align:center;">
+                  <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:700;letter-spacing:-0.5px;">iJob Bangladesh</h1>
+                  <p style="margin:10px 0 0;color:#94a3b8;font-size:16px;">Empowering Careers in Bangladesh</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:48px 40px;">
+                  <h2 style="margin:0 0 20px;font-size:22px;font-weight:700;color:#0f172a;">Verify your identity</h2>
+                  <p style="margin:0 0 24px;font-size:16px;line-height:26px;color:#475569;">
+                    Thank you for joining iJob! To complete your registration and ensure the security of your account, please use the following verification code:
+                  </p>
+                  <div style="background-color:#f8fafc;border:2px dashed #cbd5e1;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px;">
+                    <span style="font-size:36px;font-weight:800;letter-spacing:8px;color:#0f172a;font-family:monospace;">${code}</span>
+                  </div>
+                  <p style="margin:0 0 32px;font-size:14px;color:#64748b;text-align:center;">
+                    This code will expire in <strong style="color:#0f172a;">10 minutes</strong>.
+                  </p>
+                  <div style="border-top:1px solid #e2e8f0;padding-top:24px;">
+                    <p style="margin:0;font-size:14px;line-height:20px;color:#94a3b8;">
+                      If you didn't request this code, you can safely ignore this email. Someone might have typed your email address by mistake.
+                    </p>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:32px 40px;background-color:#f8fafc;text-align:center;">
+                  <p style="margin:0;font-size:12px;color:#94a3b8;line-height:18px;">
+                    © ${new Date().getFullYear()} iJob Bangladesh. All rights reserved.<br>
+                    Dhaka, Bangladesh
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+    `, "Verify your iJob account");
+};
+const sendPhoneVerificationCode = async (phone, code, channel) => {
+    if (config_1.default.verification.sms_webhook_url) {
+        const response = await fetch(config_1.default.verification.sms_webhook_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ phone, code, channel }),
+        });
+        if (!response.ok) {
+            throw new ApiError_1.default(http_status_1.default.BAD_GATEWAY, "Could not deliver verification code through the SMS/WhatsApp provider.");
+        }
+        return;
+    }
+    if (config_1.default.node_env !== "production") {
+        console.info(`[iJob verification:${channel}] ${phone} -> ${code}`);
+        return;
+    }
+    throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "SMS/WhatsApp verification provider is not configured yet. Add an email or configure SMS_PROVIDER_WEBHOOK_URL.");
+};
 const loginUser = async (payload) => {
     const identifier = String(payload.identifier || payload.email || payload.phone || "").trim();
     const normalizedPhone = normalizePhone(identifier);
@@ -30,6 +152,8 @@ const loginUser = async (payload) => {
             id: true,
             email: true,
             phone: true,
+            emailVerifiedAt: true,
+            phoneVerifiedAt: true,
             passwordHash: true,
             role: true,
             fullName: true,
@@ -55,6 +179,144 @@ const loginUser = async (payload) => {
         accessToken,
         refreshToken,
         user,
+    };
+};
+const requestContactVerification = async (payload) => {
+    const contact = resolveVerificationContact(payload);
+    const user = await prisma_1.prisma.user.findFirst({
+        where: {
+            ...(contact.email ? { email: contact.email } : { phone: contact.phone }),
+            status: client_1.UserStatus.ACTIVE,
+        },
+        select: {
+            id: true,
+            email: true,
+            phone: true,
+            emailVerifiedAt: true,
+            phoneVerifiedAt: true,
+        },
+    });
+    if (!user) {
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, "User not found or account not active.");
+    }
+    const alreadyVerified = contact.email ? user.emailVerifiedAt : user.phoneVerifiedAt;
+    if (alreadyVerified) {
+        return {
+            alreadyVerified: true,
+            channel: contact.channel,
+            identifier: contact.maskedIdentifier,
+            expiresInMinutes: 0,
+        };
+    }
+    const code = (0, crypto_1.randomInt)(100000, 1000000).toString();
+    const codeHash = await bcryptjs_1.default.hash(code, Number(config_1.default.salt_rounds));
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + verificationCodeTtlMinutes * 60 * 1000);
+    await prisma_1.prisma.$transaction(async (tx) => {
+        await tx.verificationToken.updateMany({
+            where: {
+                userId: user.id,
+                purpose: client_1.VerificationPurpose.SIGNUP,
+                consumedAt: null,
+                ...(contact.email ? { email: contact.email } : { phone: contact.phone }),
+            },
+            data: {
+                consumedAt: now,
+            },
+        });
+        await tx.verificationToken.create({
+            data: {
+                userId: user.id,
+                email: contact.email,
+                phone: contact.phone,
+                codeHash,
+                channel: contact.channel,
+                purpose: client_1.VerificationPurpose.SIGNUP,
+                expiresAt,
+            },
+        });
+    });
+    if (contact.email) {
+        await sendVerificationEmail(contact.email, code);
+    }
+    else if (contact.phone) {
+        await sendPhoneVerificationCode(contact.phone, code, contact.channel);
+    }
+    return {
+        alreadyVerified: false,
+        channel: contact.channel,
+        identifier: contact.maskedIdentifier,
+        expiresInMinutes: verificationCodeTtlMinutes,
+        ...(config_1.default.node_env !== "production" ? { debugCode: code } : {}),
+    };
+};
+const confirmContactVerification = async (payload) => {
+    const contact = resolveVerificationContact(payload);
+    const user = await prisma_1.prisma.user.findFirst({
+        where: {
+            ...(contact.email ? { email: contact.email } : { phone: contact.phone }),
+            status: client_1.UserStatus.ACTIVE,
+        },
+        select: {
+            id: true,
+            emailVerifiedAt: true,
+            phoneVerifiedAt: true,
+        },
+    });
+    if (!user) {
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, "User not found or account not active.");
+    }
+    const token = await prisma_1.prisma.verificationToken.findFirst({
+        where: {
+            userId: user.id,
+            purpose: client_1.VerificationPurpose.SIGNUP,
+            channel: contact.channel,
+            consumedAt: null,
+            expiresAt: { gt: new Date() },
+            ...(contact.email ? { email: contact.email } : { phone: contact.phone }),
+        },
+        orderBy: { createdAt: "desc" },
+    });
+    if (!token) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Verification code is invalid or expired.");
+    }
+    if (token.attempts >= verificationMaxAttempts) {
+        await prisma_1.prisma.verificationToken.update({
+            where: { id: token.id },
+            data: { consumedAt: new Date() },
+        });
+        throw new ApiError_1.default(http_status_1.default.TOO_MANY_REQUESTS, "Too many invalid attempts. Request a new code.");
+    }
+    const isCodeValid = await bcryptjs_1.default.compare(payload.code.trim(), token.codeHash);
+    if (!isCodeValid) {
+        await prisma_1.prisma.verificationToken.update({
+            where: { id: token.id },
+            data: { attempts: { increment: 1 } },
+        });
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Verification code is incorrect.");
+    }
+    const verifiedAt = new Date();
+    const updatedUser = await prisma_1.prisma.$transaction(async (tx) => {
+        await tx.verificationToken.update({
+            where: { id: token.id },
+            data: { consumedAt: verifiedAt },
+        });
+        return tx.user.update({
+            where: { id: user.id },
+            data: contact.email
+                ? { emailVerifiedAt: user.emailVerifiedAt || verifiedAt }
+                : { phoneVerifiedAt: user.phoneVerifiedAt || verifiedAt },
+            select: {
+                id: true,
+                emailVerifiedAt: true,
+                phoneVerifiedAt: true,
+            },
+        });
+    });
+    return {
+        id: updatedUser.id,
+        emailVerifiedAt: updatedUser.emailVerifiedAt,
+        phoneVerifiedAt: updatedUser.phoneVerifiedAt,
     };
 };
 const refreshToken = async (oldRefreshToken) => {
@@ -379,6 +641,8 @@ const getMe = async (userFromRequest) => {
 exports.AuthServices = {
     loginUser,
     refreshToken,
+    requestContactVerification,
+    confirmContactVerification,
     changePassword,
     forgotPassword,
     resetPassword,

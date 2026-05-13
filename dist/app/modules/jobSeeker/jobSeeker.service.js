@@ -1,9 +1,14 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.JobSeekerService = void 0;
 const prisma_1 = require("../../../lib/prisma");
 const paginationHelper_1 = require("../../../helpers/paginationHelper");
 const enums_1 = require("../../../prisma/generated/client/enums");
+const ApiError_1 = __importDefault(require("../../errors/ApiError"));
+const http_status_1 = __importDefault(require("http-status"));
 const normalizeTextArray = (value, fallback = []) => {
     if (Array.isArray(value)) {
         return value.map((item) => String(item).trim()).filter(Boolean);
@@ -150,6 +155,11 @@ const updateIntoDB = async (id, payload) => {
             user: true,
         },
     });
+    if (payload.isProfileVerified === true &&
+        !existingProfile.user.emailVerifiedAt &&
+        !existingProfile.user.phoneVerifiedAt) {
+        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "A job seeker must verify email or phone before profile verification.");
+    }
     return prisma_1.prisma.$transaction(async (tx) => {
         const updatedProfile = await tx.jobSeekerProfile.update({
             where: { id },

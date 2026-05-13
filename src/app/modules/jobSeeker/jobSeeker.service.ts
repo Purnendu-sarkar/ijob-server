@@ -4,6 +4,8 @@ import { paginationHelper } from '../../../helpers/paginationHelper';
 import { IJobSeekerFilterRequest } from './jobSeeker.interface';
 import { UserRole, UserStatus, Gender } from '../../../prisma/generated/client/enums';
 import { Prisma } from '../../../prisma/generated/client/client';
+import ApiError from '../../errors/ApiError';
+import httpStatus from 'http-status';
 
 const normalizeTextArray = (value: unknown, fallback: string[] = []) => {
     if (Array.isArray(value)) {
@@ -172,6 +174,17 @@ const updateIntoDB = async (id: string, payload: any) => {
             user: true,
         },
     });
+
+    if (
+        payload.isProfileVerified === true &&
+        !existingProfile.user.emailVerifiedAt &&
+        !existingProfile.user.phoneVerifiedAt
+    ) {
+        throw new ApiError(
+            httpStatus.BAD_REQUEST,
+            "A job seeker must verify email or phone before profile verification.",
+        );
+    }
 
     return prisma.$transaction(async (tx) => {
         const updatedProfile = await tx.jobSeekerProfile.update({

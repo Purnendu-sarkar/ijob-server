@@ -48,7 +48,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.defineExtension = exports.JsonNullValueFilter = exports.NullsOrder = exports.QueryMode = exports.NullableJsonNullValueInput = exports.SortOrder = exports.AdminProfileScalarFieldEnum = exports.ModeratorProfileScalarFieldEnum = exports.EmployerProfileScalarFieldEnum = exports.JobSeekerProfileScalarFieldEnum = exports.UserScalarFieldEnum = exports.JobScalarFieldEnum = exports.CompanyScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.prismaVersion = exports.getExtensionContext = exports.Decimal = exports.Sql = exports.raw = exports.join = exports.empty = exports.sql = exports.PrismaClientValidationError = exports.PrismaClientInitializationError = exports.PrismaClientRustPanicError = exports.PrismaClientUnknownRequestError = exports.PrismaClientKnownRequestError = void 0;
+exports.defineExtension = exports.JsonNullValueFilter = exports.NullsOrder = exports.QueryMode = exports.NullableJsonNullValueInput = exports.SortOrder = exports.VerificationTokenScalarFieldEnum = exports.AdminProfileScalarFieldEnum = exports.ModeratorProfileScalarFieldEnum = exports.EmployerProfileScalarFieldEnum = exports.JobSeekerProfileScalarFieldEnum = exports.UserScalarFieldEnum = exports.JobScalarFieldEnum = exports.VerificationDocumentScalarFieldEnum = exports.CompanyScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.prismaVersion = exports.getExtensionContext = exports.Decimal = exports.Sql = exports.raw = exports.join = exports.empty = exports.sql = exports.PrismaClientValidationError = exports.PrismaClientInitializationError = exports.PrismaClientRustPanicError = exports.PrismaClientUnknownRequestError = exports.PrismaClientKnownRequestError = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/client"));
 /**
  * Prisma Errors
@@ -104,12 +104,14 @@ exports.JsonNull = runtime.JsonNull;
 exports.AnyNull = runtime.AnyNull;
 exports.ModelName = {
     Company: 'Company',
+    VerificationDocument: 'VerificationDocument',
     Job: 'Job',
     User: 'User',
     JobSeekerProfile: 'JobSeekerProfile',
     EmployerProfile: 'EmployerProfile',
     ModeratorProfile: 'ModeratorProfile',
-    AdminProfile: 'AdminProfile'
+    AdminProfile: 'AdminProfile',
+    VerificationToken: 'VerificationToken'
 };
 /**
  * Enums
@@ -128,7 +130,29 @@ exports.CompanyScalarFieldEnum = {
     website: 'website',
     logoUrl: 'logoUrl',
     address: 'address',
+    industry: 'industry',
+    companySize: 'companySize',
+    contactEmail: 'contactEmail',
+    contactPhone: 'contactPhone',
+    tradeLicenseNumber: 'tradeLicenseNumber',
     verificationStatus: 'verificationStatus',
+    verificationSubmittedAt: 'verificationSubmittedAt',
+    verificationReviewedAt: 'verificationReviewedAt',
+    verificationRejectionReason: 'verificationRejectionReason',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+exports.VerificationDocumentScalarFieldEnum = {
+    id: 'id',
+    companyId: 'companyId',
+    uploadedByUserId: 'uploadedByUserId',
+    reviewedByUserId: 'reviewedByUserId',
+    documentType: 'documentType',
+    fileUrl: 'fileUrl',
+    filePublicId: 'filePublicId',
+    status: 'status',
+    reviewedAt: 'reviewedAt',
+    rejectionReason: 'rejectionReason',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };
@@ -160,6 +184,8 @@ exports.UserScalarFieldEnum = {
     needPasswordChange: 'needPasswordChange',
     role: 'role',
     status: 'status',
+    emailVerifiedAt: 'emailVerifiedAt',
+    phoneVerifiedAt: 'phoneVerifiedAt',
     fullName: 'fullName',
     profilePhotoUrl: 'profilePhotoUrl',
     lastLoginAt: 'lastLoginAt',
@@ -177,6 +203,10 @@ exports.JobSeekerProfileScalarFieldEnum = {
     expectedSalaryMax: 'expectedSalaryMax',
     experienceYears: 'experienceYears',
     about: 'about',
+    skills: 'skills',
+    education: 'education',
+    resumeUrl: 'resumeUrl',
+    videoIntroUrl: 'videoIntroUrl',
     preferredJobTypes: 'preferredJobTypes',
     preferredLocations: 'preferredLocations',
     profileCompletion: 'profileCompletion',
@@ -206,6 +236,20 @@ exports.AdminProfileScalarFieldEnum = {
     userId: 'userId',
     permissions: 'permissions',
     department: 'department',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+exports.VerificationTokenScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    email: 'email',
+    phone: 'phone',
+    codeHash: 'codeHash',
+    channel: 'channel',
+    purpose: 'purpose',
+    expiresAt: 'expiresAt',
+    consumedAt: 'consumedAt',
+    attempts: 'attempts',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };

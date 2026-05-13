@@ -1,27 +1,77 @@
-import { Request, Response } from 'express';
-import catchAsync from '../../../shared/catchAsync';
-import sendResponse from '../../../shared/sendResponse';
-import httpStatus from 'http-status';
-import { userService } from './user.service';
-import { fileUploader } from '../../../helpers/fileUploader';
+import { Request, Response } from "express";
+import httpStatus from "http-status";
+import { VerificationDocumentType } from "../../../prisma/generated/client/client";
+import { fileUploader } from "../../../helpers/fileUploader";
+import catchAsync from "../../../shared/catchAsync";
+import sendResponse from "../../../shared/sendResponse";
+import { userService } from "./user.service";
 
+type MulterFileMap = Record<string, Express.Multer.File[]>;
+
+const getFiles = (req: Request) => (req.files || {}) as MulterFileMap;
+
+const firstFile = (req: Request, ...fieldNames: string[]) => {
+  const files = getFiles(req);
+  for (const fieldName of fieldNames) {
+    const file = files[fieldName]?.[0];
+    if (file) return file;
+  }
+  return null;
+};
+
+const uploadFile = async (file: Express.Multer.File | null) => {
+  if (!file) return null;
+  const uploaded = await fileUploader.uploadToCloudinary(file);
+  return {
+    url: uploaded?.secure_url || null,
+    publicId: uploaded?.public_id || null,
+  };
+};
+
+const uploadVerificationDocuments = async (req: Request) => {
+  const documentFields: Array<{
+    field: string;
+    documentType: VerificationDocumentType;
+  }> = [
+    { field: "tradeLicenseFile", documentType: VerificationDocumentType.TRADE_LICENSE },
+    { field: "nidFile", documentType: VerificationDocumentType.NID },
+    { field: "tinFile", documentType: VerificationDocumentType.TIN },
+    { field: "binFile", documentType: VerificationDocumentType.BIN },
+    { field: "otherDocumentFile", documentType: VerificationDocumentType.OTHER },
+  ];
+
+  const files = getFiles(req);
+  const documents = [];
+
+  for (const { field, documentType } of documentFields) {
+    const file = files[field]?.[0];
+    if (!file) continue;
+
+    const uploaded = await uploadFile(file);
+    if (!uploaded?.url) continue;
+
+    documents.push({
+      documentType,
+      fileUrl: uploaded.url,
+      filePublicId: uploaded.publicId,
+    });
+  }
+
+  return documents;
+};
 
 const createAdmin = catchAsync(async (req: Request, res: Response) => {
   let profilePhotoUrl: string | null = null;
 
-  // File upload to Cloudinary
   if (req.file) {
     const uploaded = await fileUploader.uploadToCloudinary(req.file);
     profilePhotoUrl = uploaded?.secure_url || null;
   }
 
-  // Merge file URL with body
-  const payload = {
+  const result = await userService.createAdmin({
     ...req.body,
     profilePhotoUrl,
-  };
-
-  const result = await userService.createAdmin(payload);
+  });
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -32,50 +82,37 @@ const createAdmin = catchAsync(async (req: Request, res: Response) => {
 });
 
 const createJobSeeker = catchAsync(async (req: Request, res: Response) => {
-  console.log("DATA", req.body)
-  // ── File upload ───────────────────────────────────────
-  let profilePhotoUrl = null;
+  const profilePhoto = await uploadFile(firstFile(req, "profilePhotoFile", "file"));
+  const resume = await uploadFile(firstFile(req, "resumeFile"));
 
-  if (req.file) {
-    const uploaded = await fileUploader.uploadToCloudinary(req.file);
-    profilePhotoUrl = uploaded?.secure_url;
-  }
-
-  // Merge file url into body
-  const payload = {
+  const result = await userService.createJobSeeker({
     ...req.body,
-    profilePhotoUrl: profilePhotoUrl || req.body.profilePhotoUrl,
-  };
-
-  const result = await userService.createJobSeeker(payload);
+    profilePhotoUrl: profilePhoto?.url || req.body.profilePhotoUrl,
+    resumeUrl: resume?.url || req.body.resumeUrl,
+  });
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: "Job Seeker account created successfully",
+    message: "Job seeker account created successfully",
     data: result,
   });
 });
 
 const createEmployer = catchAsync(async (req: Request, res: Response) => {
-  let logoUrl = null;
+  const logo = await uploadFile(firstFile(req, "logoFile", "file"));
+  const verificationDocuments = await uploadVerificationDocuments(req);
 
-  if (req.file) {
-    const uploaded = await fileUploader.uploadToCloudinary(req.file);
-    logoUrl = uploaded?.secure_url;
-  }
-
-  const payload = {
+  const result = await userService.createEmployer({
     ...req.body,
-    logoUrl: logoUrl || req.body.logoUrl,
-  };
-
-  const result = await userService.createEmployer(payload);
+    logoUrl: logo?.url || req.body.logoUrl,
+    verificationDocuments,
+  });
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: "Employer & Company account created successfully (pending verification)",
+    message: "Employer and company account created successfully. Verification is pending.",
     data: result,
   });
 });

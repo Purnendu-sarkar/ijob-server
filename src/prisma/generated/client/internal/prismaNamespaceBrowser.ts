@@ -52,12 +52,14 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Company: 'Company',
+  VerificationDocument: 'VerificationDocument',
   Job: 'Job',
   User: 'User',
   JobSeekerProfile: 'JobSeekerProfile',
   EmployerProfile: 'EmployerProfile',
   ModeratorProfile: 'ModeratorProfile',
-  AdminProfile: 'AdminProfile'
+  AdminProfile: 'AdminProfile',
+  VerificationToken: 'VerificationToken'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -84,12 +86,38 @@ export const CompanyScalarFieldEnum = {
   website: 'website',
   logoUrl: 'logoUrl',
   address: 'address',
+  industry: 'industry',
+  companySize: 'companySize',
+  contactEmail: 'contactEmail',
+  contactPhone: 'contactPhone',
+  tradeLicenseNumber: 'tradeLicenseNumber',
   verificationStatus: 'verificationStatus',
+  verificationSubmittedAt: 'verificationSubmittedAt',
+  verificationReviewedAt: 'verificationReviewedAt',
+  verificationRejectionReason: 'verificationRejectionReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type CompanyScalarFieldEnum = (typeof CompanyScalarFieldEnum)[keyof typeof CompanyScalarFieldEnum]
+
+
+export const VerificationDocumentScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  uploadedByUserId: 'uploadedByUserId',
+  reviewedByUserId: 'reviewedByUserId',
+  documentType: 'documentType',
+  fileUrl: 'fileUrl',
+  filePublicId: 'filePublicId',
+  status: 'status',
+  reviewedAt: 'reviewedAt',
+  rejectionReason: 'rejectionReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VerificationDocumentScalarFieldEnum = (typeof VerificationDocumentScalarFieldEnum)[keyof typeof VerificationDocumentScalarFieldEnum]
 
 
 export const JobScalarFieldEnum = {
@@ -124,6 +152,8 @@ export const UserScalarFieldEnum = {
   needPasswordChange: 'needPasswordChange',
   role: 'role',
   status: 'status',
+  emailVerifiedAt: 'emailVerifiedAt',
+  phoneVerifiedAt: 'phoneVerifiedAt',
   fullName: 'fullName',
   profilePhotoUrl: 'profilePhotoUrl',
   lastLoginAt: 'lastLoginAt',
@@ -145,6 +175,10 @@ export const JobSeekerProfileScalarFieldEnum = {
   expectedSalaryMax: 'expectedSalaryMax',
   experienceYears: 'experienceYears',
   about: 'about',
+  skills: 'skills',
+  education: 'education',
+  resumeUrl: 'resumeUrl',
+  videoIntroUrl: 'videoIntroUrl',
   preferredJobTypes: 'preferredJobTypes',
   preferredLocations: 'preferredLocations',
   profileCompletion: 'profileCompletion',
@@ -191,6 +225,24 @@ export const AdminProfileScalarFieldEnum = {
 } as const
 
 export type AdminProfileScalarFieldEnum = (typeof AdminProfileScalarFieldEnum)[keyof typeof AdminProfileScalarFieldEnum]
+
+
+export const VerificationTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  email: 'email',
+  phone: 'phone',
+  codeHash: 'codeHash',
+  channel: 'channel',
+  purpose: 'purpose',
+  expiresAt: 'expiresAt',
+  consumedAt: 'consumedAt',
+  attempts: 'attempts',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VerificationTokenScalarFieldEnum = (typeof VerificationTokenScalarFieldEnum)[keyof typeof VerificationTokenScalarFieldEnum]
 
 
 export const SortOrder = {

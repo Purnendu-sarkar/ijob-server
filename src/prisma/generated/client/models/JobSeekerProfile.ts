@@ -51,6 +51,9 @@ export type JobSeekerProfileMinAggregateOutputType = {
   expectedSalaryMax: number | null
   experienceYears: number | null
   about: string | null
+  education: string | null
+  resumeUrl: string | null
+  videoIntroUrl: string | null
   profileCompletion: number | null
   isProfileVerified: boolean | null
   createdAt: Date | null
@@ -68,6 +71,9 @@ export type JobSeekerProfileMaxAggregateOutputType = {
   expectedSalaryMax: number | null
   experienceYears: number | null
   about: string | null
+  education: string | null
+  resumeUrl: string | null
+  videoIntroUrl: string | null
   profileCompletion: number | null
   isProfileVerified: boolean | null
   createdAt: Date | null
@@ -85,6 +91,10 @@ export type JobSeekerProfileCountAggregateOutputType = {
   expectedSalaryMax: number
   experienceYears: number
   about: number
+  skills: number
+  education: number
+  resumeUrl: number
+  videoIntroUrl: number
   preferredJobTypes: number
   preferredLocations: number
   profileCompletion: number
@@ -120,6 +130,9 @@ export type JobSeekerProfileMinAggregateInputType = {
   expectedSalaryMax?: true
   experienceYears?: true
   about?: true
+  education?: true
+  resumeUrl?: true
+  videoIntroUrl?: true
   profileCompletion?: true
   isProfileVerified?: true
   createdAt?: true
@@ -137,6 +150,9 @@ export type JobSeekerProfileMaxAggregateInputType = {
   expectedSalaryMax?: true
   experienceYears?: true
   about?: true
+  education?: true
+  resumeUrl?: true
+  videoIntroUrl?: true
   profileCompletion?: true
   isProfileVerified?: true
   createdAt?: true
@@ -154,6 +170,10 @@ export type JobSeekerProfileCountAggregateInputType = {
   expectedSalaryMax?: true
   experienceYears?: true
   about?: true
+  skills?: true
+  education?: true
+  resumeUrl?: true
+  videoIntroUrl?: true
   preferredJobTypes?: true
   preferredLocations?: true
   profileCompletion?: true
@@ -260,6 +280,10 @@ export type JobSeekerProfileGroupByOutputType = {
   expectedSalaryMax: number | null
   experienceYears: number | null
   about: string | null
+  skills: string[]
+  education: string | null
+  resumeUrl: string | null
+  videoIntroUrl: string | null
   preferredJobTypes: $Enums.JobType[]
   preferredLocations: string[]
   profileCompletion: number | null
@@ -302,6 +326,10 @@ export type JobSeekerProfileWhereInput = {
   expectedSalaryMax?: Prisma.IntNullableFilter<"JobSeekerProfile"> | number | null
   experienceYears?: Prisma.IntNullableFilter<"JobSeekerProfile"> | number | null
   about?: Prisma.StringNullableFilter<"JobSeekerProfile"> | string | null
+  skills?: Prisma.StringNullableListFilter<"JobSeekerProfile">
+  education?: Prisma.StringNullableFilter<"JobSeekerProfile"> | string | null
+  resumeUrl?: Prisma.StringNullableFilter<"JobSeekerProfile"> | string | null
+  videoIntroUrl?: Prisma.StringNullableFilter<"JobSeekerProfile"> | string | null
   preferredJobTypes?: Prisma.EnumJobTypeNullableListFilter<"JobSeekerProfile">
   preferredLocations?: Prisma.StringNullableListFilter<"JobSeekerProfile">
   profileCompletion?: Prisma.IntNullableFilter<"JobSeekerProfile"> | number | null
@@ -322,6 +350,10 @@ export type JobSeekerProfileOrderByWithRelationInput = {
   expectedSalaryMax?: Prisma.SortOrderInput | Prisma.SortOrder
   experienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
   about?: Prisma.SortOrderInput | Prisma.SortOrder
+  skills?: Prisma.SortOrder
+  education?: Prisma.SortOrderInput | Prisma.SortOrder
+  resumeUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  videoIntroUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredJobTypes?: Prisma.SortOrder
   preferredLocations?: Prisma.SortOrder
   profileCompletion?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -345,6 +377,10 @@ export type JobSeekerProfileWhereUniqueInput = Prisma.AtLeast<{
   expectedSalaryMax?: Prisma.IntNullableFilter<"JobSeekerProfile"> | number | null
   experienceYears?: Prisma.IntNullableFilter<"JobSeekerProfile"> | number | null
   about?: Prisma.StringNullableFilter<"JobSeekerProfile"> | string | null
+  skills?: Prisma.StringNullableListFilter<"JobSeekerProfile">
+  education?: Prisma.StringNullableFilter<"JobSeekerProfile"> | string | null
+  resumeUrl?: Prisma.StringNullableFilter<"JobSeekerProfile"> | string | null
+  videoIntroUrl?: Prisma.StringNullableFilter<"JobSeekerProfile"> | string | null
   preferredJobTypes?: Prisma.EnumJobTypeNullableListFilter<"JobSeekerProfile">
   preferredLocations?: Prisma.StringNullableListFilter<"JobSeekerProfile">
   profileCompletion?: Prisma.IntNullableFilter<"JobSeekerProfile"> | number | null
@@ -365,6 +401,10 @@ export type JobSeekerProfileOrderByWithAggregationInput = {
   expectedSalaryMax?: Prisma.SortOrderInput | Prisma.SortOrder
   experienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
   about?: Prisma.SortOrderInput | Prisma.SortOrder
+  skills?: Prisma.SortOrder
+  education?: Prisma.SortOrderInput | Prisma.SortOrder
+  resumeUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  videoIntroUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredJobTypes?: Prisma.SortOrder
   preferredLocations?: Prisma.SortOrder
   profileCompletion?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -392,6 +432,10 @@ export type JobSeekerProfileScalarWhereWithAggregatesInput = {
   expectedSalaryMax?: Prisma.IntNullableWithAggregatesFilter<"JobSeekerProfile"> | number | null
   experienceYears?: Prisma.IntNullableWithAggregatesFilter<"JobSeekerProfile"> | number | null
   about?: Prisma.StringNullableWithAggregatesFilter<"JobSeekerProfile"> | string | null
+  skills?: Prisma.StringNullableListFilter<"JobSeekerProfile">
+  education?: Prisma.StringNullableWithAggregatesFilter<"JobSeekerProfile"> | string | null
+  resumeUrl?: Prisma.StringNullableWithAggregatesFilter<"JobSeekerProfile"> | string | null
+  videoIntroUrl?: Prisma.StringNullableWithAggregatesFilter<"JobSeekerProfile"> | string | null
   preferredJobTypes?: Prisma.EnumJobTypeNullableListFilter<"JobSeekerProfile">
   preferredLocations?: Prisma.StringNullableListFilter<"JobSeekerProfile">
   profileCompletion?: Prisma.IntNullableWithAggregatesFilter<"JobSeekerProfile"> | number | null
@@ -410,6 +454,10 @@ export type JobSeekerProfileCreateInput = {
   expectedSalaryMax?: number | null
   experienceYears?: number | null
   about?: string | null
+  skills?: Prisma.JobSeekerProfileCreateskillsInput | string[]
+  education?: string | null
+  resumeUrl?: string | null
+  videoIntroUrl?: string | null
   preferredJobTypes?: Prisma.JobSeekerProfileCreatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileCreatepreferredLocationsInput | string[]
   profileCompletion?: number | null
@@ -430,6 +478,10 @@ export type JobSeekerProfileUncheckedCreateInput = {
   expectedSalaryMax?: number | null
   experienceYears?: number | null
   about?: string | null
+  skills?: Prisma.JobSeekerProfileCreateskillsInput | string[]
+  education?: string | null
+  resumeUrl?: string | null
+  videoIntroUrl?: string | null
   preferredJobTypes?: Prisma.JobSeekerProfileCreatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileCreatepreferredLocationsInput | string[]
   profileCompletion?: number | null
@@ -448,6 +500,10 @@ export type JobSeekerProfileUpdateInput = {
   expectedSalaryMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  skills?: Prisma.JobSeekerProfileUpdateskillsInput | string[]
+  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resumeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoIntroUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileUpdatepreferredLocationsInput | string[]
   profileCompletion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -468,6 +524,10 @@ export type JobSeekerProfileUncheckedUpdateInput = {
   expectedSalaryMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  skills?: Prisma.JobSeekerProfileUpdateskillsInput | string[]
+  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resumeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoIntroUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileUpdatepreferredLocationsInput | string[]
   profileCompletion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -487,6 +547,10 @@ export type JobSeekerProfileCreateManyInput = {
   expectedSalaryMax?: number | null
   experienceYears?: number | null
   about?: string | null
+  skills?: Prisma.JobSeekerProfileCreateskillsInput | string[]
+  education?: string | null
+  resumeUrl?: string | null
+  videoIntroUrl?: string | null
   preferredJobTypes?: Prisma.JobSeekerProfileCreatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileCreatepreferredLocationsInput | string[]
   profileCompletion?: number | null
@@ -505,6 +569,10 @@ export type JobSeekerProfileUpdateManyMutationInput = {
   expectedSalaryMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  skills?: Prisma.JobSeekerProfileUpdateskillsInput | string[]
+  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resumeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoIntroUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileUpdatepreferredLocationsInput | string[]
   profileCompletion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -524,6 +592,10 @@ export type JobSeekerProfileUncheckedUpdateManyInput = {
   expectedSalaryMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  skills?: Prisma.JobSeekerProfileUpdateskillsInput | string[]
+  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resumeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoIntroUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileUpdatepreferredLocationsInput | string[]
   profileCompletion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -537,19 +609,19 @@ export type JobSeekerProfileNullableScalarRelationFilter = {
   isNot?: Prisma.JobSeekerProfileWhereInput | null
 }
 
-export type EnumJobTypeNullableListFilter<$PrismaModel = never> = {
-  equals?: $Enums.JobType[] | Prisma.ListEnumJobTypeFieldRefInput<$PrismaModel> | null
-  has?: $Enums.JobType | Prisma.EnumJobTypeFieldRefInput<$PrismaModel> | null
-  hasEvery?: $Enums.JobType[] | Prisma.ListEnumJobTypeFieldRefInput<$PrismaModel>
-  hasSome?: $Enums.JobType[] | Prisma.ListEnumJobTypeFieldRefInput<$PrismaModel>
-  isEmpty?: boolean
-}
-
 export type StringNullableListFilter<$PrismaModel = never> = {
   equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
   has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
   hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
   hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
+}
+
+export type EnumJobTypeNullableListFilter<$PrismaModel = never> = {
+  equals?: $Enums.JobType[] | Prisma.ListEnumJobTypeFieldRefInput<$PrismaModel> | null
+  has?: $Enums.JobType | Prisma.EnumJobTypeFieldRefInput<$PrismaModel> | null
+  hasEvery?: $Enums.JobType[] | Prisma.ListEnumJobTypeFieldRefInput<$PrismaModel>
+  hasSome?: $Enums.JobType[] | Prisma.ListEnumJobTypeFieldRefInput<$PrismaModel>
   isEmpty?: boolean
 }
 
@@ -564,6 +636,10 @@ export type JobSeekerProfileCountOrderByAggregateInput = {
   expectedSalaryMax?: Prisma.SortOrder
   experienceYears?: Prisma.SortOrder
   about?: Prisma.SortOrder
+  skills?: Prisma.SortOrder
+  education?: Prisma.SortOrder
+  resumeUrl?: Prisma.SortOrder
+  videoIntroUrl?: Prisma.SortOrder
   preferredJobTypes?: Prisma.SortOrder
   preferredLocations?: Prisma.SortOrder
   profileCompletion?: Prisma.SortOrder
@@ -590,6 +666,9 @@ export type JobSeekerProfileMaxOrderByAggregateInput = {
   expectedSalaryMax?: Prisma.SortOrder
   experienceYears?: Prisma.SortOrder
   about?: Prisma.SortOrder
+  education?: Prisma.SortOrder
+  resumeUrl?: Prisma.SortOrder
+  videoIntroUrl?: Prisma.SortOrder
   profileCompletion?: Prisma.SortOrder
   isProfileVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -607,6 +686,9 @@ export type JobSeekerProfileMinOrderByAggregateInput = {
   expectedSalaryMax?: Prisma.SortOrder
   experienceYears?: Prisma.SortOrder
   about?: Prisma.SortOrder
+  education?: Prisma.SortOrder
+  resumeUrl?: Prisma.SortOrder
+  videoIntroUrl?: Prisma.SortOrder
   profileCompletion?: Prisma.SortOrder
   isProfileVerified?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -652,6 +734,10 @@ export type JobSeekerProfileUncheckedUpdateOneWithoutUserNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.JobSeekerProfileUpdateToOneWithWhereWithoutUserInput, Prisma.JobSeekerProfileUpdateWithoutUserInput>, Prisma.JobSeekerProfileUncheckedUpdateWithoutUserInput>
 }
 
+export type JobSeekerProfileCreateskillsInput = {
+  set: string[]
+}
+
 export type JobSeekerProfileCreatepreferredJobTypesInput = {
   set: $Enums.JobType[]
 }
@@ -662,6 +748,11 @@ export type JobSeekerProfileCreatepreferredLocationsInput = {
 
 export type NullableEnumGenderFieldUpdateOperationsInput = {
   set?: $Enums.Gender | null
+}
+
+export type JobSeekerProfileUpdateskillsInput = {
+  set?: string[]
+  push?: string | string[]
 }
 
 export type JobSeekerProfileUpdatepreferredJobTypesInput = {
@@ -684,6 +775,10 @@ export type JobSeekerProfileCreateWithoutUserInput = {
   expectedSalaryMax?: number | null
   experienceYears?: number | null
   about?: string | null
+  skills?: Prisma.JobSeekerProfileCreateskillsInput | string[]
+  education?: string | null
+  resumeUrl?: string | null
+  videoIntroUrl?: string | null
   preferredJobTypes?: Prisma.JobSeekerProfileCreatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileCreatepreferredLocationsInput | string[]
   profileCompletion?: number | null
@@ -702,6 +797,10 @@ export type JobSeekerProfileUncheckedCreateWithoutUserInput = {
   expectedSalaryMax?: number | null
   experienceYears?: number | null
   about?: string | null
+  skills?: Prisma.JobSeekerProfileCreateskillsInput | string[]
+  education?: string | null
+  resumeUrl?: string | null
+  videoIntroUrl?: string | null
   preferredJobTypes?: Prisma.JobSeekerProfileCreatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileCreatepreferredLocationsInput | string[]
   profileCompletion?: number | null
@@ -736,6 +835,10 @@ export type JobSeekerProfileUpdateWithoutUserInput = {
   expectedSalaryMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  skills?: Prisma.JobSeekerProfileUpdateskillsInput | string[]
+  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resumeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoIntroUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileUpdatepreferredLocationsInput | string[]
   profileCompletion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -754,6 +857,10 @@ export type JobSeekerProfileUncheckedUpdateWithoutUserInput = {
   expectedSalaryMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   experienceYears?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   about?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  skills?: Prisma.JobSeekerProfileUpdateskillsInput | string[]
+  education?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resumeUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  videoIntroUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredJobTypes?: Prisma.JobSeekerProfileUpdatepreferredJobTypesInput | $Enums.JobType[]
   preferredLocations?: Prisma.JobSeekerProfileUpdatepreferredLocationsInput | string[]
   profileCompletion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -775,6 +882,10 @@ export type JobSeekerProfileSelect<ExtArgs extends runtime.Types.Extensions.Inte
   expectedSalaryMax?: boolean
   experienceYears?: boolean
   about?: boolean
+  skills?: boolean
+  education?: boolean
+  resumeUrl?: boolean
+  videoIntroUrl?: boolean
   preferredJobTypes?: boolean
   preferredLocations?: boolean
   profileCompletion?: boolean
@@ -795,6 +906,10 @@ export type JobSeekerProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   expectedSalaryMax?: boolean
   experienceYears?: boolean
   about?: boolean
+  skills?: boolean
+  education?: boolean
+  resumeUrl?: boolean
+  videoIntroUrl?: boolean
   preferredJobTypes?: boolean
   preferredLocations?: boolean
   profileCompletion?: boolean
@@ -815,6 +930,10 @@ export type JobSeekerProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   expectedSalaryMax?: boolean
   experienceYears?: boolean
   about?: boolean
+  skills?: boolean
+  education?: boolean
+  resumeUrl?: boolean
+  videoIntroUrl?: boolean
   preferredJobTypes?: boolean
   preferredLocations?: boolean
   profileCompletion?: boolean
@@ -835,6 +954,10 @@ export type JobSeekerProfileSelectScalar = {
   expectedSalaryMax?: boolean
   experienceYears?: boolean
   about?: boolean
+  skills?: boolean
+  education?: boolean
+  resumeUrl?: boolean
+  videoIntroUrl?: boolean
   preferredJobTypes?: boolean
   preferredLocations?: boolean
   profileCompletion?: boolean
@@ -843,7 +966,7 @@ export type JobSeekerProfileSelectScalar = {
   updatedAt?: boolean
 }
 
-export type JobSeekerProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "fullName" | "dateOfBirth" | "gender" | "currentLocationId" | "expectedSalaryMin" | "expectedSalaryMax" | "experienceYears" | "about" | "preferredJobTypes" | "preferredLocations" | "profileCompletion" | "isProfileVerified" | "createdAt" | "updatedAt", ExtArgs["result"]["jobSeekerProfile"]>
+export type JobSeekerProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "fullName" | "dateOfBirth" | "gender" | "currentLocationId" | "expectedSalaryMin" | "expectedSalaryMax" | "experienceYears" | "about" | "skills" | "education" | "resumeUrl" | "videoIntroUrl" | "preferredJobTypes" | "preferredLocations" | "profileCompletion" | "isProfileVerified" | "createdAt" | "updatedAt", ExtArgs["result"]["jobSeekerProfile"]>
 export type JobSeekerProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -870,6 +993,10 @@ export type $JobSeekerProfilePayload<ExtArgs extends runtime.Types.Extensions.In
     expectedSalaryMax: number | null
     experienceYears: number | null
     about: string | null
+    skills: string[]
+    education: string | null
+    resumeUrl: string | null
+    videoIntroUrl: string | null
     preferredJobTypes: $Enums.JobType[]
     preferredLocations: string[]
     profileCompletion: number | null
@@ -1310,6 +1437,10 @@ export interface JobSeekerProfileFieldRefs {
   readonly expectedSalaryMax: Prisma.FieldRef<"JobSeekerProfile", 'Int'>
   readonly experienceYears: Prisma.FieldRef<"JobSeekerProfile", 'Int'>
   readonly about: Prisma.FieldRef<"JobSeekerProfile", 'String'>
+  readonly skills: Prisma.FieldRef<"JobSeekerProfile", 'String[]'>
+  readonly education: Prisma.FieldRef<"JobSeekerProfile", 'String'>
+  readonly resumeUrl: Prisma.FieldRef<"JobSeekerProfile", 'String'>
+  readonly videoIntroUrl: Prisma.FieldRef<"JobSeekerProfile", 'String'>
   readonly preferredJobTypes: Prisma.FieldRef<"JobSeekerProfile", 'JobType[]'>
   readonly preferredLocations: Prisma.FieldRef<"JobSeekerProfile", 'String[]'>
   readonly profileCompletion: Prisma.FieldRef<"JobSeekerProfile", 'Int'>

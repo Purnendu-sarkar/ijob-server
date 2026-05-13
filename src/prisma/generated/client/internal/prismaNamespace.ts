@@ -385,12 +385,14 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Company: 'Company',
+  VerificationDocument: 'VerificationDocument',
   Job: 'Job',
   User: 'User',
   JobSeekerProfile: 'JobSeekerProfile',
   EmployerProfile: 'EmployerProfile',
   ModeratorProfile: 'ModeratorProfile',
-  AdminProfile: 'AdminProfile'
+  AdminProfile: 'AdminProfile',
+  VerificationToken: 'VerificationToken'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -406,7 +408,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "company" | "job" | "user" | "jobSeekerProfile" | "employerProfile" | "moderatorProfile" | "adminProfile"
+    modelProps: "company" | "verificationDocument" | "job" | "user" | "jobSeekerProfile" | "employerProfile" | "moderatorProfile" | "adminProfile" | "verificationToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -481,6 +483,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CompanyCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CompanyCountAggregateOutputType> | number
+        }
+      }
+    }
+    VerificationDocument: {
+      payload: Prisma.$VerificationDocumentPayload<ExtArgs>
+      fields: Prisma.VerificationDocumentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.VerificationDocumentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationDocumentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.VerificationDocumentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationDocumentPayload>
+        }
+        findFirst: {
+          args: Prisma.VerificationDocumentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationDocumentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.VerificationDocumentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationDocumentPayload>
+        }
+        findMany: {
+          args: Prisma.VerificationDocumentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationDocumentPayload>[]
+        }
+        create: {
+          args: Prisma.VerificationDocumentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationDocumentPayload>
+        }
+        createMany: {
+          args: Prisma.VerificationDocumentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.VerificationDocumentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationDocumentPayload>[]
+        }
+        delete: {
+          args: Prisma.VerificationDocumentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationDocumentPayload>
+        }
+        update: {
+          args: Prisma.VerificationDocumentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationDocumentPayload>
+        }
+        deleteMany: {
+          args: Prisma.VerificationDocumentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.VerificationDocumentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.VerificationDocumentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationDocumentPayload>[]
+        }
+        upsert: {
+          args: Prisma.VerificationDocumentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationDocumentPayload>
+        }
+        aggregate: {
+          args: Prisma.VerificationDocumentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVerificationDocument>
+        }
+        groupBy: {
+          args: Prisma.VerificationDocumentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VerificationDocumentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.VerificationDocumentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VerificationDocumentCountAggregateOutputType> | number
         }
       }
     }
@@ -928,6 +1004,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    VerificationToken: {
+      payload: Prisma.$VerificationTokenPayload<ExtArgs>
+      fields: Prisma.VerificationTokenFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.VerificationTokenFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationTokenPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.VerificationTokenFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationTokenPayload>
+        }
+        findFirst: {
+          args: Prisma.VerificationTokenFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationTokenPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.VerificationTokenFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationTokenPayload>
+        }
+        findMany: {
+          args: Prisma.VerificationTokenFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationTokenPayload>[]
+        }
+        create: {
+          args: Prisma.VerificationTokenCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationTokenPayload>
+        }
+        createMany: {
+          args: Prisma.VerificationTokenCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.VerificationTokenCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationTokenPayload>[]
+        }
+        delete: {
+          args: Prisma.VerificationTokenDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationTokenPayload>
+        }
+        update: {
+          args: Prisma.VerificationTokenUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationTokenPayload>
+        }
+        deleteMany: {
+          args: Prisma.VerificationTokenDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.VerificationTokenUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.VerificationTokenUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationTokenPayload>[]
+        }
+        upsert: {
+          args: Prisma.VerificationTokenUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationTokenPayload>
+        }
+        aggregate: {
+          args: Prisma.VerificationTokenAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVerificationToken>
+        }
+        groupBy: {
+          args: Prisma.VerificationTokenGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VerificationTokenGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.VerificationTokenCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VerificationTokenCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -975,12 +1125,38 @@ export const CompanyScalarFieldEnum = {
   website: 'website',
   logoUrl: 'logoUrl',
   address: 'address',
+  industry: 'industry',
+  companySize: 'companySize',
+  contactEmail: 'contactEmail',
+  contactPhone: 'contactPhone',
+  tradeLicenseNumber: 'tradeLicenseNumber',
   verificationStatus: 'verificationStatus',
+  verificationSubmittedAt: 'verificationSubmittedAt',
+  verificationReviewedAt: 'verificationReviewedAt',
+  verificationRejectionReason: 'verificationRejectionReason',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type CompanyScalarFieldEnum = (typeof CompanyScalarFieldEnum)[keyof typeof CompanyScalarFieldEnum]
+
+
+export const VerificationDocumentScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  uploadedByUserId: 'uploadedByUserId',
+  reviewedByUserId: 'reviewedByUserId',
+  documentType: 'documentType',
+  fileUrl: 'fileUrl',
+  filePublicId: 'filePublicId',
+  status: 'status',
+  reviewedAt: 'reviewedAt',
+  rejectionReason: 'rejectionReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VerificationDocumentScalarFieldEnum = (typeof VerificationDocumentScalarFieldEnum)[keyof typeof VerificationDocumentScalarFieldEnum]
 
 
 export const JobScalarFieldEnum = {
@@ -1015,6 +1191,8 @@ export const UserScalarFieldEnum = {
   needPasswordChange: 'needPasswordChange',
   role: 'role',
   status: 'status',
+  emailVerifiedAt: 'emailVerifiedAt',
+  phoneVerifiedAt: 'phoneVerifiedAt',
   fullName: 'fullName',
   profilePhotoUrl: 'profilePhotoUrl',
   lastLoginAt: 'lastLoginAt',
@@ -1036,6 +1214,10 @@ export const JobSeekerProfileScalarFieldEnum = {
   expectedSalaryMax: 'expectedSalaryMax',
   experienceYears: 'experienceYears',
   about: 'about',
+  skills: 'skills',
+  education: 'education',
+  resumeUrl: 'resumeUrl',
+  videoIntroUrl: 'videoIntroUrl',
   preferredJobTypes: 'preferredJobTypes',
   preferredLocations: 'preferredLocations',
   profileCompletion: 'profileCompletion',
@@ -1082,6 +1264,24 @@ export const AdminProfileScalarFieldEnum = {
 } as const
 
 export type AdminProfileScalarFieldEnum = (typeof AdminProfileScalarFieldEnum)[keyof typeof AdminProfileScalarFieldEnum]
+
+
+export const VerificationTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  email: 'email',
+  phone: 'phone',
+  codeHash: 'codeHash',
+  channel: 'channel',
+  purpose: 'purpose',
+  expiresAt: 'expiresAt',
+  consumedAt: 'consumedAt',
+  attempts: 'attempts',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VerificationTokenScalarFieldEnum = (typeof VerificationTokenScalarFieldEnum)[keyof typeof VerificationTokenScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1170,6 +1370,20 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'VerificationDocumentType'
+ */
+export type EnumVerificationDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VerificationDocumentType'>
+    
+
+
+/**
+ * Reference to a field of type 'VerificationDocumentType[]'
+ */
+export type ListEnumVerificationDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VerificationDocumentType[]'>
     
 
 
@@ -1291,6 +1505,34 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
+
+/**
+ * Reference to a field of type 'VerificationChannel'
+ */
+export type EnumVerificationChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VerificationChannel'>
+    
+
+
+/**
+ * Reference to a field of type 'VerificationChannel[]'
+ */
+export type ListEnumVerificationChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VerificationChannel[]'>
+    
+
+
+/**
+ * Reference to a field of type 'VerificationPurpose'
+ */
+export type EnumVerificationPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VerificationPurpose'>
+    
+
+
+/**
+ * Reference to a field of type 'VerificationPurpose[]'
+ */
+export type ListEnumVerificationPurposeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VerificationPurpose[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -1387,12 +1629,14 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   company?: Prisma.CompanyOmit
+  verificationDocument?: Prisma.VerificationDocumentOmit
   job?: Prisma.JobOmit
   user?: Prisma.UserOmit
   jobSeekerProfile?: Prisma.JobSeekerProfileOmit
   employerProfile?: Prisma.EmployerProfileOmit
   moderatorProfile?: Prisma.ModeratorProfileOmit
   adminProfile?: Prisma.AdminProfileOmit
+  verificationToken?: Prisma.VerificationTokenOmit
 }
 
 /* Types for Logging */

@@ -45,6 +45,11 @@ export { Prisma }
  */
 export type Company = Prisma.CompanyModel
 /**
+ * Model VerificationDocument
+ * 
+ */
+export type VerificationDocument = Prisma.VerificationDocumentModel
+/**
  * Model Job
  * 
  */
@@ -74,3 +79,8 @@ export type ModeratorProfile = Prisma.ModeratorProfileModel
  * 
  */
 export type AdminProfile = Prisma.AdminProfileModel
+/**
+ * Model VerificationToken
+ * 
+ */
+export type VerificationToken = Prisma.VerificationTokenModel

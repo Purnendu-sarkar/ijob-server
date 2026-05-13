@@ -4,6 +4,33 @@ exports.JobSeekerService = void 0;
 const prisma_1 = require("../../../lib/prisma");
 const paginationHelper_1 = require("../../../helpers/paginationHelper");
 const enums_1 = require("../../../prisma/generated/client/enums");
+const normalizeTextArray = (value, fallback = []) => {
+    if (Array.isArray(value)) {
+        return value.map((item) => String(item).trim()).filter(Boolean);
+    }
+    if (typeof value === "string") {
+        return value
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean);
+    }
+    return fallback;
+};
+const calculateProfileCompletion = (profile) => {
+    const checks = [
+        profile.fullName,
+        profile.user?.email || profile.user?.phone,
+        profile.skills?.length,
+        profile.experienceYears !== undefined && profile.experienceYears !== null,
+        profile.education,
+        profile.currentLocationId,
+        profile.preferredJobTypes?.length,
+        profile.preferredLocations?.length,
+        profile.resumeUrl,
+        profile.about,
+    ];
+    return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+};
 const getAllFromDB = async (params, options) => {
     const { page, limit, skip } = paginationHelper_1.paginationHelper.calculatePagination(options);
     const { searchTerm, ...filterData } = params;
@@ -135,6 +162,10 @@ const updateIntoDB = async (id, payload) => {
                 expectedSalaryMax: payload.expectedSalaryMax,
                 experienceYears: payload.experienceYears,
                 about: payload.about,
+                education: payload.education,
+                skills: payload.skills,
+                resumeUrl: payload.resumeUrl,
+                videoIntroUrl: payload.videoIntroUrl,
                 preferredJobTypes: payload.preferredJobTypes,
                 preferredLocations: payload.preferredLocations,
                 isProfileVerified: payload.isProfileVerified,
@@ -150,6 +181,67 @@ const updateIntoDB = async (id, payload) => {
             });
         }
         return updatedProfile;
+    });
+};
+const updateMyProfile = async (userId, payload) => {
+    const existingProfile = await prisma_1.prisma.jobSeekerProfile.findUniqueOrThrow({
+        where: { userId },
+        include: { user: true },
+    });
+    const skills = normalizeTextArray(payload.skills, existingProfile.skills);
+    const preferredLocations = normalizeTextArray(payload.preferredLocations, existingProfile.preferredLocations);
+    const preferredJobTypes = normalizeTextArray(payload.preferredJobTypes, existingProfile.preferredJobTypes);
+    return prisma_1.prisma.$transaction(async (tx) => {
+        if (payload.fullName || payload.profilePhotoUrl) {
+            await tx.user.update({
+                where: { id: userId },
+                data: {
+                    ...(payload.fullName ? { fullName: payload.fullName.trim() } : {}),
+                    ...(payload.profilePhotoUrl ? { profilePhotoUrl: payload.profilePhotoUrl } : {}),
+                },
+            });
+        }
+        const nextProfile = {
+            ...existingProfile,
+            ...payload,
+            skills,
+            preferredLocations,
+            preferredJobTypes,
+            user: existingProfile.user,
+        };
+        return tx.jobSeekerProfile.update({
+            where: { userId },
+            data: {
+                fullName: payload.fullName?.trim(),
+                dateOfBirth: payload.dateOfBirth ? new Date(payload.dateOfBirth) : undefined,
+                gender: payload.gender,
+                currentLocationId: payload.currentLocationId,
+                expectedSalaryMin: payload.expectedSalaryMin,
+                expectedSalaryMax: payload.expectedSalaryMax,
+                experienceYears: payload.experienceYears,
+                about: payload.about,
+                education: payload.education,
+                skills,
+                resumeUrl: payload.resumeUrl,
+                videoIntroUrl: payload.videoIntroUrl,
+                preferredJobTypes: preferredJobTypes,
+                preferredLocations,
+                profileCompletion: calculateProfileCompletion(nextProfile),
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        email: true,
+                        phone: true,
+                        fullName: true,
+                        profilePhotoUrl: true,
+                        role: true,
+                        status: true,
+                    },
+                },
+            },
+        });
     });
 };
 const softDeleteFromDB = async (id) => {
@@ -175,6 +267,7 @@ exports.JobSeekerService = {
     getAllFromDB,
     getByIdFromDB,
     updateIntoDB,
+    updateMyProfile,
     softDeleteFromDB,
     hardDeleteFromDB,
 };

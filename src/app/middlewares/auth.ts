@@ -9,7 +9,10 @@ import ApiError from "../errors/ApiError";
 const auth = (...roles: string[]) => {
     return async (req: Request & { user?: any }, res: Response, next: NextFunction) => {
         try {
-            const token = req.headers.authorization || req.cookies.accessToken;
+            const authHeader = req.headers.authorization;
+            const token = authHeader?.startsWith("Bearer ")
+                ? authHeader.replace("Bearer ", "")
+                : authHeader || req.cookies.accessToken;
             // console.log({ token }, "from auth guard");
 
             if (!token) {

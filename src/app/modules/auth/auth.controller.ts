@@ -31,9 +31,11 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     success: true,
     message: "Login successful.",
     data: {
+      needPasswordChange: user.needPasswordChange || false,
       user: {
         id: user.id,
         email: user.email,
+        phone: user.phone,
         role: user.role,
         fullName: user.fullName,
         needPasswordChange: user.needPasswordChange || false,
@@ -46,7 +48,7 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
   const { refreshToken } = req.cookies;
 
   if (!refreshToken) {
-    throw new Error("Refresh token not found!");
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Refresh token not found!");
   }
 
   const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
@@ -97,10 +99,7 @@ const forgotPassword = catchAsync(async (req: Request, res: Response) => {
 });
 
 const resetPassword = catchAsync(async (req: Request & { user?: any }, res: Response) => {
-  console.log("REQ", req);
-  // Extract token from Authorization header (remove "Bearer " prefix)
   const authHeader = req.headers.authorization;
-  console.log(authHeader, "authHeader in resetPassword controller");
   const token = authHeader ? authHeader.replace('Bearer ', '') : null;
   const user = req.user; // Will be populated if authenticated via middleware
 

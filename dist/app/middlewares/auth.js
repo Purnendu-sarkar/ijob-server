@@ -10,7 +10,10 @@ const ApiError_1 = __importDefault(require("../errors/ApiError"));
 const auth = (...roles) => {
     return async (req, res, next) => {
         try {
-            const token = req.headers.authorization || req.cookies.accessToken;
+            const authHeader = req.headers.authorization;
+            const token = authHeader?.startsWith("Bearer ")
+                ? authHeader.replace("Bearer ", "")
+                : authHeader || req.cookies.accessToken;
             // console.log({ token }, "from auth guard");
             if (!token) {
                 throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, "You are not authorized!");

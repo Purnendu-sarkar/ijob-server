@@ -9,10 +9,12 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/Company'
+export type * from './models/VerificationDocument'
 export type * from './models/Job'
 export type * from './models/User'
 export type * from './models/JobSeekerProfile'
 export type * from './models/EmployerProfile'
 export type * from './models/ModeratorProfile'
 export type * from './models/AdminProfile'
+export type * from './models/VerificationToken'
 export type * from './commonInputTypes'

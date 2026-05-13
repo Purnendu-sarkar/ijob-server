@@ -8,15 +8,26 @@ import { prisma } from "../../../lib/prisma";
 import { UserRole, UserStatus } from "../../../prisma/generated/client/client";
 import emailSender from "./emailSender";
 
-const loginUser = async (payload: { email: string; password: string }) => {
-  const user = await prisma.user.findUnique({
+const normalizePhone = (phone?: string | null) => phone?.trim().replace(/^\+?88/, "") || null;
+const normalizeEmail = (email?: string | null) => email?.trim().toLowerCase() || null;
+
+const loginUser = async (payload: { email?: string; identifier?: string; phone?: string; password: string }) => {
+  const identifier = String(payload.identifier || payload.email || payload.phone || "").trim();
+  const normalizedPhone = normalizePhone(identifier);
+  const normalizedEmail = normalizeEmail(identifier);
+  const isPhoneIdentifier = /^(?:\+?88)?01[3-9]\d{8}$/.test(identifier);
+
+  const user = await prisma.user.findFirst({
     where: {
-      email: payload.email,
+      OR: isPhoneIdentifier
+        ? [{ phone: normalizedPhone }]
+        : [{ email: normalizedEmail }, { phone: normalizedPhone }],
       status: UserStatus.ACTIVE,
     },
     select: {
       id: true,
       email: true,
+      phone: true,
       passwordHash: true,
       role: true,
       fullName: true,
@@ -34,18 +45,21 @@ const loginUser = async (payload: { email: string; password: string }) => {
   }
 
   const accessToken = jwtHelpers.generateToken(
-    { userId: user.id, email: user.email, role: user.role },
+    { userId: user.id, email: user.email, phone: user.phone, role: user.role },
     config.jwt.jwt_secret as Secret,
     "15m" // short lived
   );
 
   const refreshToken = jwtHelpers.generateToken(
-    { userId: user.id, email: user.email, role: user.role },
+    { userId: user.id, email: user.email, phone: user.phone, role: user.role },
     config.jwt.jwt_secret as Secret, // same secret for simplicity (or use different)
     "30d"
   );
 
-  // Optional: store refresh token in DB for revocation (future improvement)
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { lastLoginAt: new Date() },
+  });
 
   return {
     accessToken,
@@ -71,13 +85,13 @@ const refreshToken = async (oldRefreshToken: string) => {
   }
 
   const newAccessToken = jwtHelpers.generateToken(
-    { userId: user.id, email: user.email, role: user.role },
+    { userId: user.id, email: user.email, phone: user.phone, role: user.role },
     config.jwt.jwt_secret as Secret,
     "15m"
   );
 
   const newRefreshToken = jwtHelpers.generateToken(
-    { userId: user.id, email: user.email, role: user.role },
+    { userId: user.id, email: user.email, phone: user.phone, role: user.role },
     config.jwt.jwt_secret as Secret,
     "30d"
   );
@@ -115,13 +129,16 @@ const changePassword = async (
 };
 
 const forgotPassword = async (payload: { email: string }) => {
-  const userData = await prisma.user.findUniqueOrThrow({
+  const userData = await prisma.user.findFirstOrThrow({
     where: {
-      email: payload.email,
+      email: normalizeEmail(payload.email),
       status: UserStatus.ACTIVE,
     },
   });
-  console.log(userData.email, userData.id, userData.role)
+
+  if (!userData.email) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "This account does not have an email address.");
+  }
 
   const resetPassToken = jwtHelpers.generateToken(
     { email: userData.email, userId: userData.id, role: userData.role },
@@ -233,8 +250,6 @@ const resetPassword = async (token: string | null, payload: { email?: string, pa
   if (token) {
     const decodedToken = jwtHelpers.verifyToken(token, config.jwt.reset_pass_secret as Secret)
 
-    console.log("DECO", decodedToken)
-
     if (!decodedToken) {
       throw new ApiError(httpStatus.FORBIDDEN, "Invalid or expired reset token!")
     }
@@ -248,7 +263,6 @@ const resetPassword = async (token: string | null, payload: { email?: string, pa
   }
   // Case 2: Authenticated user with needPasswordChange (newly created admin/doctor)
   else if (user && user.email) {
-    console.log({ user }, "needpassworchange");
     const authenticatedUser = await prisma.user.findUniqueOrThrow({
       where: {
         email: user.email,
@@ -295,7 +309,15 @@ const getMe = async (userFromRequest: any) => {
       jobSeekerProfile: true,
       employerProfile: {
         include: {
-          company: true,
+          company: {
+            include: {
+              verificationDocuments: {
+                orderBy: {
+                  createdAt: "desc",
+                },
+              },
+            },
+          },
         },
       },
       moderatorProfile: true,
@@ -312,6 +334,8 @@ const getMe = async (userFromRequest: any) => {
     id: user.id,
     email: user.email,
     phone: user.phone,
+    emailVerifiedAt: user.emailVerifiedAt,
+    phoneVerifiedAt: user.phoneVerifiedAt,
     role: user.role,
     fullName: user.fullName,
     profilePhotoUrl: user.profilePhotoUrl,
@@ -337,9 +361,14 @@ const getMe = async (userFromRequest: any) => {
             expectedSalaryMax: user.jobSeekerProfile.expectedSalaryMax,
             experienceYears: user.jobSeekerProfile.experienceYears,
             about: user.jobSeekerProfile.about,
+            education: user.jobSeekerProfile.education,
+            skills: user.jobSeekerProfile.skills,
+            resumeUrl: user.jobSeekerProfile.resumeUrl,
+            videoIntroUrl: user.jobSeekerProfile.videoIntroUrl,
             preferredJobTypes: user.jobSeekerProfile.preferredJobTypes,
             preferredLocations: user.jobSeekerProfile.preferredLocations,
             profileCompletion: user.jobSeekerProfile.profileCompletion,
+            isProfileVerified: user.jobSeekerProfile.isProfileVerified,
           },
         };
       }
@@ -360,7 +389,16 @@ const getMe = async (userFromRequest: any) => {
                 description: user.employerProfile.company.description,
                 website: user.employerProfile.company.website,
                 address: user.employerProfile.company.address,
+                industry: user.employerProfile.company.industry,
+                companySize: user.employerProfile.company.companySize,
+                contactEmail: user.employerProfile.company.contactEmail,
+                contactPhone: user.employerProfile.company.contactPhone,
+                tradeLicenseNumber: user.employerProfile.company.tradeLicenseNumber,
                 verificationStatus: user.employerProfile.company.verificationStatus,
+                verificationSubmittedAt: user.employerProfile.company.verificationSubmittedAt,
+                verificationReviewedAt: user.employerProfile.company.verificationReviewedAt,
+                verificationRejectionReason: user.employerProfile.company.verificationRejectionReason,
+                verificationDocuments: user.employerProfile.company.verificationDocuments,
               }
               : null,
           },

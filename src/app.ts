@@ -6,12 +6,27 @@ import globalErrorHandler from './app/middlewares/globalErrorHandler';
 import notFound from './app/middlewares/notFound';
 import config from './config';
 import router from './app/routes';
+import { rateLimit } from './app/middlewares/rateLimit';
+import { securityHeaders } from './app/middlewares/securityHeaders';
 
 const app: Application = express();
 app.use(cookieParser());
+app.use(securityHeaders);
+
+const allowedOrigins = new Set([
+    config.frontend_url,
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]);
 
 app.use(cors({
-    origin: ['*', 'http://localhost:3000'],
+    origin(origin, callback) {
+        if (!origin || allowedOrigins.has(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true
 }));
 
@@ -30,6 +45,8 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Routes 
+app.use('/api/v1/auth', rateLimit({ windowMs: 15 * 60 * 1000, limit: 80 }));
+app.use('/api/v1/users/register', rateLimit({ windowMs: 15 * 60 * 1000, limit: 30 }));
 app.use('/api/v1', router);
 
 app.use(globalErrorHandler);

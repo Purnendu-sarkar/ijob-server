@@ -9,7 +9,7 @@
 * 🟢 You can import this file directly.
 */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.JobType = exports.Gender = exports.ApplicationStatus = exports.JobStatus = exports.VerificationStatus = exports.UserStatus = exports.UserRole = void 0;
+exports.VerificationPurpose = exports.VerificationChannel = exports.VerificationDocumentType = exports.JobType = exports.Gender = exports.ApplicationStatus = exports.JobStatus = exports.VerificationStatus = exports.UserStatus = exports.UserRole = void 0;
 exports.UserRole = {
     JOB_SEEKER: 'JOB_SEEKER',
     EMPLOYER: 'EMPLOYER',
@@ -60,4 +60,24 @@ exports.JobType = {
     NGO: 'NGO',
     PRIVATE: 'PRIVATE',
     HYBRID: 'HYBRID'
+};
+exports.VerificationDocumentType = {
+    TRADE_LICENSE: 'TRADE_LICENSE',
+    NID: 'NID',
+    TIN: 'TIN',
+    BIN: 'BIN',
+    COMPANY_LOGO: 'COMPANY_LOGO',
+    OTHER: 'OTHER'
+};
+exports.VerificationChannel = {
+    EMAIL: 'EMAIL',
+    SMS: 'SMS',
+    WHATSAPP: 'WHATSAPP'
+};
+exports.VerificationPurpose = {
+    SIGNUP: 'SIGNUP',
+    LOGIN: 'LOGIN',
+    PASSWORD_RESET: 'PASSWORD_RESET',
+    PHONE_CHANGE: 'PHONE_CHANGE',
+    EMAIL_CHANGE: 'EMAIL_CHANGE'
 };

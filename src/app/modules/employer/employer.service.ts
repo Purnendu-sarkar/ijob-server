@@ -3,6 +3,8 @@ import { prisma } from "../../../lib/prisma";
 import { IPaginationOptions } from "../../interfaces/pagination";
 import { paginationHelper } from "../../../helpers/paginationHelper";
 import { IEmployerFilterRequest } from "./employer.interface";
+import ApiError from "../../errors/ApiError";
+import httpStatus from "http-status";
 import {
   Prisma,
   UserStatus,
@@ -39,9 +41,22 @@ const employerSelect = {
       website: true,
       logoUrl: true,
       address: true,
+      industry: true,
+      companySize: true,
+      contactEmail: true,
+      contactPhone: true,
+      tradeLicenseNumber: true,
       verificationStatus: true,
+      verificationSubmittedAt: true,
+      verificationReviewedAt: true,
+      verificationRejectionReason: true,
       createdAt: true,
       updatedAt: true,
+      verificationDocuments: {
+        orderBy: {
+          createdAt: "desc" as const,
+        },
+      },
     },
   },
 };
@@ -246,12 +261,29 @@ const updateIntoDB = async (id: string, payload: any) => {
       companyData.address = payload.companyAddress.trim() || null;
     }
 
+    if (typeof payload.companyIndustry === "string") {
+      companyData.industry = payload.companyIndustry.trim() || null;
+    }
+
+    if (typeof payload.companySize === "string") {
+      companyData.companySize = payload.companySize.trim() || null;
+    }
+
+    if (typeof payload.tradeLicenseNumber === "string") {
+      companyData.tradeLicenseNumber = payload.tradeLicenseNumber.trim() || null;
+    }
+
     if (
       payload.companyVerificationStatus === "PENDING" ||
       payload.companyVerificationStatus === "VERIFIED" ||
       payload.companyVerificationStatus === "REJECTED"
     ) {
       companyData.verificationStatus = payload.companyVerificationStatus as VerificationStatus;
+      companyData.verificationReviewedAt = new Date();
+      companyData.verificationRejectionReason =
+        payload.companyVerificationStatus === "REJECTED"
+          ? payload.verificationRejectionReason || "Verification rejected."
+          : null;
     }
 
     if (Object.keys(companyData).length > 0) {
@@ -266,6 +298,186 @@ const updateIntoDB = async (id: string, payload: any) => {
       data: updateData,
       select: employerSelect,
     });
+  });
+};
+
+const updateMyCompanyProfile = async (userId: string, payload: any) => {
+  const existingEmployer = await prisma.employerProfile.findUniqueOrThrow({
+    where: { userId },
+    select: {
+      id: true,
+      companyId: true,
+      company: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  return prisma.$transaction(async (tx) => {
+    const userData: Prisma.UserUpdateInput = {};
+    const profileData: Prisma.EmployerProfileUpdateInput = {};
+    const companyData: Prisma.CompanyUpdateInput = {};
+
+    if (typeof payload.name === "string" && payload.name.trim()) {
+      userData.fullName = payload.name.trim();
+      profileData.contactName = payload.name.trim();
+    }
+
+    if (typeof payload.phone === "string" && payload.phone.trim()) {
+      const normalizedPhone = payload.phone.trim().replace(/^\+?88/, "");
+      const duplicate = await tx.user.findFirst({
+        where: {
+          phone: normalizedPhone,
+          id: { not: userId },
+          status: { not: UserStatus.DELETED },
+        },
+      });
+
+      if (duplicate) {
+        throw new ApiError(httpStatus.CONFLICT, "An account with this phone number already exists.");
+      }
+
+      userData.phone = normalizedPhone;
+      companyData.contactPhone = normalizedPhone;
+    }
+
+    if (typeof payload.designation === "string") {
+      profileData.designation = payload.designation.trim() || null;
+    }
+
+    if (typeof payload.companyName === "string" && payload.companyName.trim()) {
+      const nextCompanyName = payload.companyName.trim();
+
+      if (nextCompanyName !== existingEmployer.company.name) {
+        const duplicateCompany = await tx.company.findFirst({
+          where: {
+            name: { equals: nextCompanyName, mode: "insensitive" },
+            id: { not: existingEmployer.companyId },
+          },
+        });
+
+        if (duplicateCompany) {
+          throw new ApiError(httpStatus.CONFLICT, `A company named "${nextCompanyName}" already exists.`);
+        }
+
+        companyData.name = nextCompanyName;
+        companyData.slug = slugify(nextCompanyName, {
+          lower: true,
+          strict: true,
+          trim: true,
+        });
+        companyData.verificationStatus = VerificationStatus.PENDING;
+        companyData.verificationReviewedAt = null;
+        companyData.verificationRejectionReason = null;
+      }
+    }
+
+    if (typeof payload.companyDescription === "string") {
+      companyData.description = payload.companyDescription.trim() || null;
+    }
+
+    if (typeof payload.companyWebsite === "string") {
+      companyData.website = payload.companyWebsite.trim() || null;
+    }
+
+    if (typeof payload.companyAddress === "string") {
+      companyData.address = payload.companyAddress.trim() || null;
+    }
+
+    if (typeof payload.companyIndustry === "string") {
+      companyData.industry = payload.companyIndustry.trim() || null;
+    }
+
+    if (typeof payload.companySize === "string") {
+      companyData.companySize = payload.companySize.trim() || null;
+    }
+
+    if (typeof payload.tradeLicenseNumber === "string") {
+      companyData.tradeLicenseNumber = payload.tradeLicenseNumber.trim() || null;
+    }
+
+    if (payload.logoUrl) {
+      companyData.logoUrl = payload.logoUrl;
+    }
+
+    if (Object.keys(userData).length) {
+      await tx.user.update({
+        where: { id: userId },
+        data: userData,
+      });
+    }
+
+    if (Object.keys(profileData).length) {
+      await tx.employerProfile.update({
+        where: { userId },
+        data: profileData,
+      });
+    }
+
+    if (Object.keys(companyData).length) {
+      await tx.company.update({
+        where: { id: existingEmployer.companyId },
+        data: companyData,
+      });
+    }
+
+    return tx.employerProfile.findUnique({
+      where: { userId },
+      select: employerSelect,
+    });
+  });
+};
+
+const submitVerificationDocuments = async (
+  userId: string,
+  documents: Array<{ documentType: string; fileUrl: string; filePublicId?: string | null }>,
+) => {
+  if (!documents.length) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Please upload at least one verification document.");
+  }
+
+  const employer = await prisma.employerProfile.findUniqueOrThrow({
+    where: { userId },
+    select: {
+      companyId: true,
+    },
+  });
+
+  await prisma.$transaction(async (tx) => {
+    await tx.verificationDocument.createMany({
+      data: documents.map((document) => ({
+        companyId: employer.companyId,
+        uploadedByUserId: userId,
+        documentType: document.documentType as any,
+        fileUrl: document.fileUrl,
+        filePublicId: document.filePublicId || null,
+        status: VerificationStatus.PENDING,
+      })),
+    });
+
+    await tx.company.update({
+      where: { id: employer.companyId },
+      data: {
+        verificationStatus: VerificationStatus.PENDING,
+        verificationSubmittedAt: new Date(),
+        verificationReviewedAt: null,
+        verificationRejectionReason: null,
+      },
+    });
+  });
+
+  return prisma.company.findUnique({
+    where: { id: employer.companyId },
+    include: {
+      verificationDocuments: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    },
   });
 };
 
@@ -317,6 +529,8 @@ export const EmployerService = {
   getAllFromDB,
   getByIdFromDB,
   updateIntoDB,
+  updateMyCompanyProfile,
+  submitVerificationDocuments,
   softDeleteFromDB,
   hardDeleteFromDB,
 };

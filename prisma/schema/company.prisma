@@ -8,13 +8,42 @@ model Company {
     website            String?
     logoUrl            String?
     address            String?
+    industry           String?
+    companySize        String?
+    contactEmail       String?
+    contactPhone       String?
+    tradeLicenseNumber String?
     verificationStatus VerificationStatus @default(PENDING)
+    verificationSubmittedAt DateTime?
+    verificationReviewedAt DateTime?
+    verificationRejectionReason String?
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     employerProfiles EmployerProfile[]
     jobs             Job[]
+    verificationDocuments VerificationDocument[]
 
     @@map("companies")
+}
+
+model VerificationDocument {
+    id              String                   @id @default(uuid())
+    companyId       String
+    company         Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+    uploadedByUserId String?
+    reviewedByUserId String?
+    documentType    VerificationDocumentType
+    fileUrl         String
+    filePublicId    String?
+    status          VerificationStatus       @default(PENDING)
+    reviewedAt      DateTime?
+    rejectionReason String?
+    createdAt       DateTime                 @default(now())
+    updatedAt       DateTime                 @updatedAt
+
+    @@index([companyId, status])
+    @@index([documentType])
+    @@map("verification_documents")
 }

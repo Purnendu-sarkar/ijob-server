@@ -55,3 +55,26 @@ enum JobType {
     PRIVATE
     HYBRID
 }
+
+enum VerificationDocumentType {
+    TRADE_LICENSE
+    NID
+    TIN
+    BIN
+    COMPANY_LOGO
+    OTHER
+}
+
+enum VerificationChannel {
+    EMAIL
+    SMS
+    WHATSAPP
+}
+
+enum VerificationPurpose {
+    SIGNUP
+    LOGIN
+    PASSWORD_RESET
+    PHONE_CHANGE
+    EMAIL_CHANGE
+}

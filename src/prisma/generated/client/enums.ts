@@ -86,3 +86,35 @@ export const JobType = {
 } as const
 
 export type JobType = (typeof JobType)[keyof typeof JobType]
+
+
+export const VerificationDocumentType = {
+  TRADE_LICENSE: 'TRADE_LICENSE',
+  NID: 'NID',
+  TIN: 'TIN',
+  BIN: 'BIN',
+  COMPANY_LOGO: 'COMPANY_LOGO',
+  OTHER: 'OTHER'
+} as const
+
+export type VerificationDocumentType = (typeof VerificationDocumentType)[keyof typeof VerificationDocumentType]
+
+
+export const VerificationChannel = {
+  EMAIL: 'EMAIL',
+  SMS: 'SMS',
+  WHATSAPP: 'WHATSAPP'
+} as const
+
+export type VerificationChannel = (typeof VerificationChannel)[keyof typeof VerificationChannel]
+
+
+export const VerificationPurpose = {
+  SIGNUP: 'SIGNUP',
+  LOGIN: 'LOGIN',
+  PASSWORD_RESET: 'PASSWORD_RESET',
+  PHONE_CHANGE: 'PHONE_CHANGE',
+  EMAIL_CHANGE: 'EMAIL_CHANGE'
+} as const
+
+export type VerificationPurpose = (typeof VerificationPurpose)[keyof typeof VerificationPurpose]

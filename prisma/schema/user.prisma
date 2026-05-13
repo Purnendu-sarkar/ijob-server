@@ -2,12 +2,14 @@
 // Core shared user (authentication + role)
 model User {
     id           String     @id @default(uuid())
-    email        String     @unique
-    phone        String?    
+    email        String?    @unique
+    phone        String?
     passwordHash String
     needPasswordChange Boolean    @default(true)
     role         UserRole
     status       UserStatus @default(ACTIVE)
+    emailVerifiedAt DateTime?
+    phoneVerifiedAt DateTime?
 
     // Very minimal shared profile fields (optional)
     fullName        String?
@@ -22,6 +24,7 @@ model User {
     employerProfile  EmployerProfile?
     moderatorProfile ModeratorProfile?
     adminProfile     AdminProfile?
+    verificationTokens VerificationToken[]
 
     // ── relations ─────────────────────────────────────
     //applications Application[]
@@ -49,6 +52,10 @@ model JobSeekerProfile {
     expectedSalaryMax Int?
     experienceYears   Int?
     about             String?
+    skills            String[] @default([])
+    education         String?
+    resumeUrl         String?
+    videoIntroUrl     String?
 
     // Preferences
     preferredJobTypes  JobType[]
@@ -125,3 +132,24 @@ model AdminProfile {
 }
 
 // ... rest of your schema (Job, Application, Resume, Skill, Location, Bookmark, Alert, AuditLog, etc.)
+
+model VerificationToken {
+    id        String              @id @default(uuid())
+    userId    String?
+    user      User?               @relation(fields: [userId], references: [id], onDelete: Cascade)
+    email     String?
+    phone     String?
+    codeHash  String
+    channel   VerificationChannel
+    purpose   VerificationPurpose
+    expiresAt DateTime
+    consumedAt DateTime?
+    attempts  Int                 @default(0)
+    createdAt DateTime            @default(now())
+    updatedAt DateTime            @updatedAt
+
+    @@index([email, purpose])
+    @@index([phone, purpose])
+    @@index([userId, purpose])
+    @@map("verification_tokens")
+}

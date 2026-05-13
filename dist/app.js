@@ -10,10 +10,23 @@ const globalErrorHandler_1 = __importDefault(require("./app/middlewares/globalEr
 const notFound_1 = __importDefault(require("./app/middlewares/notFound"));
 const config_1 = __importDefault(require("./config"));
 const routes_1 = __importDefault(require("./app/routes"));
+const rateLimit_1 = require("./app/middlewares/rateLimit");
+const securityHeaders_1 = require("./app/middlewares/securityHeaders");
 const app = (0, express_1.default)();
 app.use((0, cookie_parser_1.default)());
+app.use(securityHeaders_1.securityHeaders);
+const allowedOrigins = new Set([
+    config_1.default.frontend_url,
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]);
 app.use((0, cors_1.default)({
-    origin: ['*', 'http://localhost:3000'],
+    origin(origin, callback) {
+        if (!origin || allowedOrigins.has(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error('Not allowed by CORS'));
+    },
     credentials: true
 }));
 //parser
@@ -28,6 +41,8 @@ app.get('/', (req, res) => {
     });
 });
 // Routes 
+app.use('/api/v1/auth', (0, rateLimit_1.rateLimit)({ windowMs: 15 * 60 * 1000, limit: 80 }));
+app.use('/api/v1/users/register', (0, rateLimit_1.rateLimit)({ windowMs: 15 * 60 * 1000, limit: 30 }));
 app.use('/api/v1', routes_1.default);
 app.use(globalErrorHandler_1.default);
 app.use(notFound_1.default);
